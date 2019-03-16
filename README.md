@@ -1,27 +1,23 @@
-# A DIY IPMI / IP KVM system utilizing the Raspberry Pi
+# A DIY IPMI board
 A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor view, and and the ability to reboot computers with standard motherboards remotely as if you were sitting in front of them with a keyboard and monitor.
 
 ![Screenshot](https://github.com/Fmstrat/diy-ipmi/raw/master/Resources/Screenshot.png)
 
 ## Requirements
-- Rasberry Pi 3 Model B (https://www.adafruit.com/product/3055)
-- Rasberry Pi Zero 1.3 (https://www.adafruit.com/product/2885)
-- 2.5Amp power (https://www.amazon.com/gp/product/B01FM0XOH8)
-- GPIO pins for Pi Zero (https://www.adafruit.com/product/2822)
-- GPIO cables (https://www.amazon.com/gp/product/B01BV2A54G)
+- Rasberry Pi 3 Model B+ (https://www.amazon.co.uk/dp/B07BDR5PDW)
+- Rasberry Pi Zero WH (https://www.modmypi.com/raspberry-pi/raspberry-pi-zero-board-379/rpi-zero-board/raspberry-pi-zero-wireless-pre-soldered-header)
+- 2.5Amp power (https://www.amazon.co.uk/dp/B01CCR5P8U)
+- GPIO cables (https://www.amazon.co.uk/dp/B01LVVIOUO)
 - 2x MicroSD cards (https://www.amazon.com/dp/B06XWN9Q99)
-- Relay board (https://www.amazon.com/dp/B0057OC5WK)
-- Easycap UTV007 device (https://www.amazon.com/dp/B0126O0RDC)
-- HDMI to S-Video (not all options work, but these two have been tested) (https://www.amazon.com/dp/B012MDMWLM or https://www.amazon.com/gp/product/B01E56CV42)
-- USB TTL Serial cable (https://www.amazon.com/gp/product/B00QT7LQ88)
-
-A full wishlist totaling under $120 at the time of this writing can be found at http://a.co/36FK9T8
+- Relay board (https://www.amazon.co.uk/dp/B073K14CVB)
+- Easycap UTV007 device (https://www.amazon.co.uk/dp/B07B9ZXLN2)
+- HDMI to S-Video (https://www.amazon.co.uk/dp/B0088HMN3E)
+- USB TTL Serial cable (https://www.amazon.co.uk/dp/B00KAE2EL4)
+- Micro USB to USB male cable (https://www.amazon.co.uk/dp/B074VM7SMM)
 
 ## Before assembling
 
-On the Pi3, flash http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2017-09-08/. As of this writing you may use the latest Stretch version, however this was the version used successfully.
-
-On the Pi0, flash http://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2017-03-03/. You must use this version for this to work. There aren't really security implications since the Pi0 can only be accessed from a serial session on the Pi3.
+Flash https://downloads.raspberrypi.org/raspbian_lite_latest onto the micro SD cards.
 
 Before putting the SD into the Pi0, add this to the end of /boot/config.txt:
 ```
@@ -30,20 +26,6 @@ enable_uart=1
 ```
 
 Before putting the SD into the Pi3, create a blank file called `SSH` on the boot drive to enable SSH.
-
-Also, if you will be connecting via Wifi, create a file in boot called `wpa_supplicant.conf` that uses unix based line feeds. To ensure that is the case, use `Notepad++` or another editor that allows you to change line feed types (bottom right), or copy the `config.txt` file and rename it. Include the following:
-```
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-country=US
-
-network={
-    ssid="NETWORKNAME"
-    psk="PASSWORD"
-    key_mgmt=WPA-PSK
-}
-```
-
 
 ## Setting up the hardware
 Here is a diagram of how you connect all of the pieces:
@@ -57,25 +39,9 @@ The detailed process is to:
 - Connect the Pi0 to the Pi3 using this method: https://www.thepolyglotdeveloper.com/2017/02/connect-raspberry-pi-pi-zero-usb-ttl-serial-cable/. You do not need to supply power to the Pi0, it will get power via the GPIO pins.
 - Plug the easycap device and the USB TTL device into the USB ports on the Pi3
 - Connect the HDMI out of your computer into the HDMI to S-Video box, and connect it to the EasyCap device via an S-Video cable
-- Connect the Pi0 to the server via a microUSB to USB male cable
+- Connect the Pi0 to the server via a micro USB to USB male cable
 
-
-## Quick Install
-The quick method of installation is to simply run the install script on the Pi3 as the `pi` user:
-```
-wget https://raw.githubusercontent.com/Fmstrat/diy-ipmi/master/install.sh
-chmod +x install.sh
-./install.sh
-```
-Everything will be done on the Pi3 and Pi0 automatically with the video input defaulting to s-video.
-
-If you would like to manage multiple servers with one IPMI system, please see the [Managing multiple servers](#managing-multiple-servers) section below.
-
-Be sure to check the bottom of this README for [Tips](#tips) and [Troubleshooting](#troubleshooting)!
-
-
-## The long way
-If you would like to do things step by step to understand how things work, the following instructions can be used.
+## Installation
 
 #### Setting up the Pi 3
 
@@ -84,15 +50,15 @@ First, let's get all the software we need:
 sudo apt-get update
 sudo apt-get -y install libav-tools screen lighttpd php php-cgi git
 cd /opt
-sudo git clone https://github.com/Fmstrat/diy-ipmi
-sudo chown pi diy-ipmi -R
-chmod +x /opt/diy-ipmi/Pi3/*.py
-chmod +x /opt/diy-ipmi/Pi3/*.sh
+sudo git clone git@repository.camfm.co.uk:tech/ipmi.git
+sudo chown pi ipmi -R
+chmod +x /opt/ipmi/Pi3/*.py
+chmod +x /opt/ipmi/Pi3/*.sh
 ```
 
 To test the ability to reboot the computer via the relay board, run:
 ```
-/opt/diy-ipmi/Pi3/rebootServer.py
+/opt/ipmi/Pi3/rebootServer.py
 ```
 Test this script to see if it resets the computer. If you are interested, look in the python script to see the numbers associated with which of the 8 relays you could use for multiple computers.
 
@@ -120,7 +86,7 @@ echo ')' | sudo tee --append /etc/lighttpd/lighttpd.conf
 
 cd /var/www/
 sudo mv /var/www/html /var/www/html.orig
-sudo ln -s /opt/diy-ipmi/Pi3/html /var/www/html
+sudo ln -s /opt/ipmi/Pi3/html /var/www/html
 
 echo '[Server 1]' | sudo tee --append /etc/ipmi.conf
 echo 'TTY=/dev/ttyUSB0' | sudo tee --append /etc/ipmi.conf
@@ -162,7 +128,7 @@ Press enter until you see a login prompt. Do not login. Instead, exit the sessio
 
 On the Pi3, run:
 ```
-/opt/diy-ipmi/Pi3/checkPi0Login.sh
+/opt/ipmi/Pi3/checkPi0Login.sh
 
 echo "sudo systemctl enable serial-getty@ttyAMA0.service" >> /dev/ttyUSB0
 echo "sudo cp /lib/systemd/system/serial-getty@.service /etc/systemd/system/serial-getty@ttyAMA0.service" >> /dev/ttyUSB0
@@ -199,7 +165,6 @@ echo "echo exit 0 | sudo tee --append /etc/rc.local" >> /dev/ttyUSB0
 
 #### Access the IPMI
 You should now be able to access the IPMI console at `http://<RaspberryPi3IP>/`. From here you can set up SSL and port forwarding to the device as your situation requires.
-
 
 ## Managing multiple servers
 Multiple servers can be managed by using multile USB capture devices (one per server), multiple USB-to-Serial adapters each with their own Pi0 (one per server), and using one of the 8 relays on the relay board as the reset button. Once installed, edit `/etc/ipmi.conf`. The format should be:
