@@ -38,14 +38,12 @@ dtoverlay=dwc2
 enable_uart=1
 ```
 
-Before putting the SD into the Pi 3, create a blank file called `SSH` on the boot drive to enable SSH.
+Before putting the SD into the Pi3, create a blank file called `SSH` on the boot drive to enable SSH.
 
 ## Setting up the hardware
 Here is a diagram of how you connect all of the pieces:
 
-![Diagram](https://github.com/Fmstrat/diy-ipmi/raw/master/Resources/Diagram-sm.png)
-
-View the [high resolution version](https://raw.githubusercontent.com/Fmstrat/diy-ipmi/master/Resources/Diagram.png)
+![Diagram](https://repository.camfm.co.uk/tech/ipmi/raw/master/Resources/Diagram.png)
 
 The detailed process is to:
 - Connect the Pi3 to the relay board using this method: http://youtu.be/oaf_zQcrg7g
