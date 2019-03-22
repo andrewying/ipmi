@@ -1,19 +1,32 @@
-# A DIY IPMI board
+# IPMI board
+
+&copy; Andrew Ying 2019.
+
 A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor view, and and the ability to reboot computers with standard motherboards remotely as if you were sitting in front of them with a keyboard and monitor.
 
 ![Screenshot](https://github.com/Fmstrat/diy-ipmi/raw/master/Resources/Screenshot.png)
 
 ## Requirements
-- Rasberry Pi 3 Model B+ (https://www.amazon.co.uk/dp/B07BDR5PDW)
-- Rasberry Pi Zero WH (https://www.modmypi.com/raspberry-pi/raspberry-pi-zero-board-379/rpi-zero-board/raspberry-pi-zero-wireless-pre-soldered-header)
-- 2.5Amp power (https://www.amazon.co.uk/dp/B01CCR5P8U)
-- GPIO cables (https://www.amazon.co.uk/dp/B01LVVIOUO)
-- 2x MicroSD cards (https://www.amazon.com/dp/B06XWN9Q99)
-- Relay board (https://www.amazon.co.uk/dp/B073K14CVB)
-- Easycap UTV007 device (https://www.amazon.co.uk/dp/B07B9ZXLN2)
-- HDMI to S-Video (https://www.amazon.co.uk/dp/B0088HMN3E)
-- USB TTL Serial cable (https://www.amazon.co.uk/dp/B00KAE2EL4)
-- Micro USB to USB male cable (https://www.amazon.co.uk/dp/B074VM7SMM)
+* Rasberry Pi 3 Model B+ (https://www.amazon.co.uk/dp/B07BDR5PDW)
+* Micro SD card (https://www.amazon.co.uk/dp/B073K14CVB)
+* 2.5Amp power (https://www.amazon.co.uk/dp/B01CCR5P8U)
+
+### Power Switch
+* GPIO cables (https://www.amazon.co.uk/dp/B01LVVIOUO)
+* Relay board (https://www.amazon.co.uk/dp/B0057OC5WK)
+* 3 core electrical cable (https://www.amazon.co.uk/dp/B01N5WVQP2)
+
+### On Air Sign
+* On Air LED sign (https://www.aliexpress.com/item/LB480-On-Air-Recording-Studio-NEW-NR-LED-Neon-Light-Sign-home-decor-crafts/1000006552370.html)
+* Mains plug (https://uk.rs-online.com/web/p/mains-plus-sockets/0490009)
+
+### KVM
+* Rasberry Pi Zero WH (https://www.modmypi.com/raspberry-pi/raspberry-pi-zero-board-379/rpi-zero-board/raspberry-pi-zero-wireless-pre-soldered-header)
+* Micro SD card (https://www.amazon.co.uk/dp/B073K14CVB)
+* Easycap UTV007 device (https://www.amazon.co.uk/dp/B07B9ZXLN2)
+* HDMI to S-Video (https://www.amazon.co.uk/dp/B0088HMN3E)
+* USB TTL Serial cable (https://www.amazon.co.uk/dp/B00KAE2EL4)
+* Micro USB to USB male cable (https://www.amazon.co.uk/dp/B074VM7SMM)
 
 ## Before assembling
 
@@ -25,7 +38,7 @@ dtoverlay=dwc2
 enable_uart=1
 ```
 
-Before putting the SD into the Pi3, create a blank file called `SSH` on the boot drive to enable SSH.
+Before putting the SD into the Pi 3, create a blank file called `SSH` on the boot drive to enable SSH.
 
 ## Setting up the hardware
 Here is a diagram of how you connect all of the pieces:
