@@ -20,7 +20,7 @@ A web-accessable IPMI / IP KVM system that provides full keyboard control, monit
 * On Air LED sign (https://www.aliexpress.com/item/LB480-On-Air-Recording-Studio-NEW-NR-LED-Neon-Light-Sign-home-decor-crafts/1000006552370.html)
 * Mains plug (https://uk.rs-online.com/web/p/mains-plus-sockets/0490009)
 
-### KVM
+### IP-KVM
 * Rasberry Pi Zero WH (https://www.modmypi.com/raspberry-pi/raspberry-pi-zero-board-379/rpi-zero-board/raspberry-pi-zero-wireless-pre-soldered-header)
 * Micro SD card (https://www.amazon.co.uk/dp/B073K14CVB)
 * Easycap UTV007 device (https://www.amazon.co.uk/dp/B07B9ZXLN2)
@@ -32,11 +32,12 @@ A web-accessable IPMI / IP KVM system that provides full keyboard control, monit
 
 Flash https://downloads.raspberrypi.org/raspbian_lite_latest onto the micro SD cards.
 
-Before putting the SD into the Pi0, add this to the end of /boot/config.txt:
+Before putting the SD into the Pi0, add this to the end of `/boot/config.txt`:
 ```
+[...]
 dtoverlay=dwc2
-enable_uart=1
 ```
+Then add `libcomposite` to the end of `/etc/modules`.
 
 Before putting the SD into the Pi3, create a blank file called `SSH` on the boot drive to enable SSH.
 
@@ -54,7 +55,7 @@ The detailed process is to:
 
 ## Installation
 
-#### Setting up the Pi 3
+### Setting up the Pi 3
 
 First, let's get all the software we need:
 ```
@@ -129,7 +130,7 @@ echo "chmod a+rw /dev/ttyUSB0" | sudo tee --append /etc/rc.local
 echo "exit 0" | sudo tee --append /etc/rc.local
 ```
 
-#### Setting up the Pi 0
+### Setting up the Pi 0
 
 Make sure you can access the Pi0 from the Pi3 by running:
 ```
@@ -174,7 +175,7 @@ echo "echo /home/pi/enableHID.sh | sudo tee --append /etc/rc.local" >> /dev/ttyU
 echo "echo exit 0 | sudo tee --append /etc/rc.local" >> /dev/ttyUSB0
 ```
 
-#### Access the IPMI
+### Access the IPMI
 You should now be able to access the IPMI console at `http://<RaspberryPi3IP>/`. From here you can set up SSL and port forwarding to the device as your situation requires.
 
 ## Managing multiple servers
