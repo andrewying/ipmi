@@ -42,7 +42,7 @@ Before putting the SD into the Pi3, create a blank file called `SSH` on the boot
 ## Setting up the hardware
 Here is a diagram of how you connect all of the pieces:
 
-![Diagram](https://repository.camfm.co.uk/tech/ipmi/raw/master/Resources/Diagram.png)
+![Diagram](/Resources/Diagram.png)
 
 The detailed process is to:
 - Connect the Pi3 to the relay board using this method: http://youtu.be/oaf_zQcrg7g
