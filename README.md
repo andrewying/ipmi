@@ -2,9 +2,7 @@
 
 &copy; Andrew Ying 2019.
 
-A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor view, and and the ability to reboot computers with standard motherboards remotely as if you were sitting in front of them with a keyboard and monitor.
-
-![Screenshot](https://github.com/Fmstrat/diy-ipmi/raw/master/Resources/Screenshot.png)
+A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor view, and and the ability to reboot computers with standard motherboards remotely as if you were sitting in front of them with a keyboard and monitor. Based on the project by @Fmstrat.
 
 ## Requirements
 * Rasberry Pi 3 Model B+ (https://www.amazon.co.uk/dp/B07BDR5PDW)
