@@ -49,6 +49,12 @@ let config = {
             },
         ]
     },
+    resolve: {
+        extensions: ['.js', '.jsx', '.css', '.scss'],
+        alias: {
+            "~": path.resolve(__dirname, "node_modules")
+        }
+    },
     plugins: [
         new ExtractCssChunks(
             {
@@ -66,7 +72,7 @@ let config = {
             cacheGroups: {
                 default: false,
                 vendors: {
-                    test: /[\\/]node_modules[\\/].*js/,
+                    test: /[\\/]node_modules[\\/]/,
                     name: "vendor",
                     chunks: "initial",
                     enforce: true
@@ -91,6 +97,7 @@ if (production) {
     config.plugins.push(
         new webpack.NamedModulesPlugin(),
     );
+    config.watch = true;
     config.devtool = "source-map";
 }
 

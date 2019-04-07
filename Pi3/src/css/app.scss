@@ -1,3 +1,12 @@
+@import "~html5-boilerplate/dist/css/normalize";
+@import "~html5-boilerplate/dist/css/main";
+
+$primary: #124a4e;
+
+html {
+  color: $primary;
+}
+
 body {
   margin: 0;
   background-color: #f8f9f9;
@@ -5,27 +14,36 @@ body {
 
 .container {
   display: flex;
-  width: 100vw;
-  min-height: 100vh;
+  width: 100%;
+  min-height: 100%;
   flex-wrap: wrap;
 }
 
 .btn {
   text-decoration: none;
-  color: #124a4e;
+  color: $primary;
   padding: .25rem .5rem;
 }
 
-header {
-  display: flex;
-  align-items: center;
-  width: 100vw;
-  height: 100px;
-  background: #cedee7;
-  z-index: 999;
+a {
+  color: $primary;
+  text-decoration: none;
+
+  &:hover {
+    color: darken($primary, 15%);
+    text-decoration: none;
+  }
 }
 
 .header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100px;
+  background: #cedee7;
+  padding: 0 1rem;
+  z-index: 999;
+
   &__logo {
     height: 100%;
   }
@@ -36,29 +54,33 @@ header {
 
   &__status {
     margin: 0 15px;
-    font-size: .9rem;
+    font-size: .95rem;
   }
 
   &__actions {
-    margin-left: auto;
-    margin-right: 15px;
     display: flex;
+    margin: 0 0 0 auto;
     list-style-type: none;
   }
 }
 
 .sidebar {
   height: calc(100vh - 100px);
-  border: 1px solid #dae5e5;
+  border-right: 1px solid #dae5e5;
   box-shadow: 5px 0 5px 0 #e1eaea;
   flex-shrink: 1;
+  padding: 0 1rem;
   z-index: 100;
 
   &__menu {
     width: 20vw;
-    max-width: 270px;
-    padding-left: 15px;
+    max-width: 250px;
+    padding: 0;
     list-style: none;
+
+    li {
+      padding: .3rem .5rem;
+    }
   }
 }
 
@@ -66,13 +88,50 @@ header {
   height: calc(100vh - 100px);
   background-color: #fefefe;
   flex-grow: 1;
+  padding: 0 1rem;
   z-index: 99;
 }
 
+@keyframes blink {
+  45% {color: transparent;}
+  55% {color: transparent;}
+}
+
 .console {
+  position: relative;
   width: 100%;
-  max-width: 1024px;
-  margin: 10px 25px;
   background-color: #222;
   object-fit: contain;
+  z-index: 100;
+
+  &__container {
+    position: relative;
+    width: 100%;
+    max-width: 1024px;
+  }
+
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: .5rem 1rem;
+    text-align: center;
+    color: #fefefe;
+    z-index: 101;
+  }
+
+  &__loading {
+    animation: 1750ms blink infinite;
+
+    &:nth-child(1) {
+      animation-delay: 0ms;
+    }
+    &:nth-child(2) {
+      animation-delay: 500ms;
+    }
+    &:nth-child(3) {
+      animation-delay: 1s;
+    }
+  }
 }

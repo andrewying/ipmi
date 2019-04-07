@@ -7,6 +7,8 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 import Console from "./components/Console";
 import Header from "./components/Header";
+import Images from "./components/Images";
+import app from "./reducers";
 
 class App extends React.Component {
     render() {
@@ -17,12 +19,17 @@ class App extends React.Component {
                     <div className="sidebar">
                         <ul className="sidebar__menu">
                             <li>
-                                <a href="#">Home</a>
+                                <Link to="/console">Console</Link>
+                            </li>
+                            <li>
+                                <Link to="/images">Virtual Images</Link>
                             </li>
                         </ul>
                     </div>
                     <div className="content">
-                        <Route path="/" component={ Console } />
+                        <Route path="/" exact component={ Console } />
+                        <Route path="/console" component={ Console } />
+                        <Route path="/images" component={ Images } />
                     </div>
                 </Router>
             </div>
@@ -30,7 +37,7 @@ class App extends React.Component {
     }
 }
 
-const store = createStore();
+const store = createStore(app);
 const MOUNT_NODE = document.getElementById("app");
 
 ReactDOM.render(
