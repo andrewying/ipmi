@@ -1,1 +1,9 @@
 .DS_Store
+yarn-error.log
+manifest.json
+
+/.idea/
+/Pi3/node_modules/*
+/Pi3/public/css
+/Pi3/public/js
+/Pi3/public/images
