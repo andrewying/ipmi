@@ -2,12 +2,14 @@
  * Copyright (c) Andrew Ying 2019.
  *
  * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * IPMI is free software. You can use, share, and build it under the terms of the
+ * API Copyleft License.
  *
  * As far as the law allows, this software comes as is, without any warranty or
  * condition, and no contributor will be liable to anyone for any damages related
  * to this software or this license, under any kind of legal claim.
+ *
+ * A copy of the API Copyleft License is available at <LICENSE.md>.
  */
 
 package auth
@@ -81,19 +83,29 @@ func (m *JWTMiddleware) Authenticated(c *gin.Context) {
 	headers := c.Request.Header
 	t := headers.Get("Authorization")
 
-	if t == "" {
+	cookie, _ := c.Request.Cookie(m.CookieName)
+
+	if t == "" && cookie.String() == "" {
 		c.Redirect(http.StatusTemporaryRedirect, "auth/login")
 		return
 	}
 
-	pattern := regexp.MustCompile(HeaderPattern)
-	match := pattern.FindStringSubmatch(t)
-	if len(match) == 0 {
-		m.Unauthorised(http.StatusBadRequest, c)
-		return
+	var jwt string
+
+	if t != "" {
+		pattern := regexp.MustCompile(HeaderPattern)
+		match := pattern.FindStringSubmatch(t)
+		if len(match) == 0 {
+			m.Unauthorised(http.StatusBadRequest, c)
+			return
+		}
+
+		jwt = match[0]
+	} else {
+		jwt = cookie.String()
 	}
 
-	token, err := jws.ParseJWT([]byte(match[0]))
+	token, err := jws.ParseJWT([]byte(jwt))
 	if err != nil {
 		m.Unauthorised(http.StatusBadRequest, c)
 		return
