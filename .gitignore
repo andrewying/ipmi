@@ -2,8 +2,8 @@
 yarn-error.log
 manifest.json
 
-/.idea/
-/Pi3/node_modules/*
-/Pi3/public/css
-/Pi3/public/js
-/Pi3/public/images
+.idea
+node_modules
+public/css
+public/js
+public/images
