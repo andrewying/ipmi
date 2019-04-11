@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) Andrew Ying 2019.
+ *
+ * This file is part of the Intelligent Platform Management Interface (IPMI) software.
+ * IPMI is licensed under the API Copyleft License. A copy of the license is available
+ * at LICENSE.md.
+ *
+ * As far as the law allows, this software comes as is, without any warranty or
+ * condition, and no contributor will be liable to anyone for any damages related
+ * to this software or this license, under any kind of legal claim.
+ */
+
 const path = require("path");
 const webpack = require("webpack");
 const ManifestPlugin = require("webpack-manifest-plugin");
@@ -10,7 +22,8 @@ const production = process.env.NODE_ENV === "production";
 let config = {
     mode: production ? "production" : "development",
     entry: {
-        app: path.join(__dirname, "src", "index.js")
+        app: path.join(__dirname, "src", "index.js"),
+        login: path.join(__dirname, "src", "login.js"),
     },
     output: {
         path: path.join(__dirname, "public"),
@@ -56,6 +69,9 @@ let config = {
         }
     },
     plugins: [
+        new webpack.ProvidePlugin({
+            fetch: "imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch"
+        }),
         new ExtractCssChunks(
             {
                 filename: production ? "css/[name]-[chunkhash].css" : "css/[name].css",
