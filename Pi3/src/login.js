@@ -10,14 +10,5 @@
  * to this software or this license, under any kind of legal claim.
  */
 
-let initialState = {
-    hostname: '',
-    iso: undefined
-};
-
-export default function app(state = initialState, action) {
-    switch (action.type) {
-        default:
-            return state;
-    }
-}
+import "./fontawesome"
+import "./js/Login"

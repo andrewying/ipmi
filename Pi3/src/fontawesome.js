@@ -10,14 +10,7 @@
  * to this software or this license, under any kind of legal claim.
  */
 
-let initialState = {
-    hostname: '',
-    iso: undefined
-};
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons'
 
-export default function app(state = initialState, action) {
-    switch (action.type) {
-        default:
-            return state;
-    }
-}
+library.add(fas);
