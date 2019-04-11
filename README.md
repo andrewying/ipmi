@@ -33,6 +33,7 @@ Flash https://downloads.raspberrypi.org/raspbian_lite_latest onto the micro SD c
 Before putting the SD into the Pi0, add this to the end of `/boot/config.txt`:
 ```
 [...]
+dtoverlay=pi3-disable-bt
 dtoverlay=dwc2
 ```
 Then add `libcomposite` to the end of `/etc/modules`.

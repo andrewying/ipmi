@@ -1,8 +1,8 @@
 #!/bin/bash
 
 cd /sys/kernel/config/usb_gadget/
-mkdir -p camfm
-cd camfm
+mkdir -p ipmi
+cd ipmi
 
 echo 0x1d6b > idVendor # Linux Foundation
 echo 0x0104 > idProduct # Multifunction Composite Gadget
@@ -12,7 +12,7 @@ echo 0x0200 > bcdUSB # USB2
 mkdir -p strings/0x409
 echo "camfm2019040501" > strings/0x409/serialnumber
 echo "Andrew Ying" > strings/0x409/manufacturer
-echo "Cam FM IPMI Device" > strings/0x409/product
+echo "IPMI Device" > strings/0x409/product
 
 # Serial
 mkdir -p functions/acm.usb0
