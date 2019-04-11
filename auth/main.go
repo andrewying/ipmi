@@ -10,7 +10,7 @@
  * to this software or this license, under any kind of legal claim.
  */
 
-package main
+package auth
 
 import (
 	"errors"
@@ -19,7 +19,6 @@ import (
 	"github.com/SermoDigital/jose/jwt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
-	"net/http"
 	"strings"
 	"time"
 )
@@ -27,26 +26,43 @@ import (
 type JWTMiddleware struct {
 	// Signing algorithm
 	SigningAlgorithm string
-	PubKeyPath       string
-	PrivKeyPath      string
+	// Path to server public key
+	PubKeyPath string
+	// Path to server private key
+	PrivKeyPath string
 	// Server public key
 	PubKey interface{}
 	// Server private key, should be of type *rsa.PrivKey or *ecdsa.PrivKey
 	PrivKey interface{}
-	// Map in the format of (identity) => (publicKey) of the list of authorised keys
-	AuthorisedKeys map[string]interface{}
+	// Name of the authorised key interface
+	Interface string
+	// Interface configuration
+	InterfaceConfig map[string]string
+	// An AuthorisedKeyInterface instance
+	AuthorisedKeys AuthorisedKeysInterface
 	AuthnTimeout   time.Duration
 	SessionTimeout time.Duration
 	Leeway         time.Duration
-	Unauthorized   func(int, *gin.Context)
+	Unauthorised   func(int, *gin.Context)
+}
+
+type AuthorisedKeysInterface interface {
+	New(map[string]string)
+	Get(...interface{}) (string, error)
 }
 
 var (
+	// Mapping between name and instances of AuthorisedKeysInterface
+	keysInterfaces = map[string]AuthorisedKeysInterface{
+		"mysql": &MysqlKeyStore{},
+	}
+
 	ErrInvalidAlg         = errors.New("signing algorithm is invalid")
 	ErrHMACAlg            = errors.New("HMAC algorithms are not accepted")
 	ErrMissingPubKey      = errors.New("public key is required")
 	ErrMissingPrivKey     = errors.New("private key is required")
 	ErrInvalidExpDuration = errors.New("expiration is longer than the permitted duration")
+	ErrInvalidToken       = errors.New("invalid JWT")
 )
 
 func (m *JWTMiddleware) MiddlewareInit() error {
@@ -102,6 +118,10 @@ func (m *JWTMiddleware) MiddlewareInit() error {
 		return ErrMissingPrivKey
 	}
 
+	if m.AuthorisedKeys == nil {
+		m.AuthorisedKeys = keysInterfaces[m.Interface]
+	}
+
 	return nil
 }
 
@@ -109,7 +129,7 @@ func (m *JWTMiddleware) MiddlewareInit() error {
 func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 	token, err := jws.ParseJWT([]byte(t))
 	if err != nil {
-		return false, err
+		return false, ErrInvalidToken
 	}
 
 	claims := token.Claims()
@@ -132,20 +152,28 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 		},
 	)
 
+	key, err := m.AuthorisedKeys.Get(issuer)
+	if key == "" {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
 	err = token.Validate(
-		m.AuthorisedKeys[issuer],
+		key,
 		jws.GetSigningMethod(m.SigningAlgorithm),
 		validator,
 	)
 	if err != nil {
-		return false, err
+		return false, nil
 	}
 
 	return true, nil
 }
 
 // Generate session token, in the form of a valid JWT to be signed by the user.
-func (m *JWTMiddleware) GetSessionToken() string {
+func (m *JWTMiddleware) GetSessionToken() (string, error) {
 	now := time.Now()
 
 	claim := jws.Claims{}
@@ -156,10 +184,10 @@ func (m *JWTMiddleware) GetSessionToken() string {
 	token := jws.NewJWT(claim, jws.GetSigningMethod(m.SigningAlgorithm))
 	bytes, err := token.Serialize(m.PrivKey)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	return string(bytes[:])
+	return string(bytes[:]), nil
 }
 
 func (m *JWTMiddleware) ValidateSessionToken(t jwt.JWT) (bool, error) {
@@ -182,65 +210,6 @@ func (m *JWTMiddleware) ValidateSessionToken(t jwt.JWT) (bool, error) {
 	}
 
 	return true, nil
-}
-
-func (m *JWTMiddleware) LoginHandler(c *gin.Context) {
-	token, present := c.GetPostForm("token")
-	if !present {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "token missing from login request",
-		})
-		return
-	}
-
-	auth, err := m.ValidateAuthnRequest(token)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "invalid JWT",
-		})
-		return
-	}
-
-	if !auth {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthenticated",
-		})
-		return
-	}
-
-	session := m.GetSessionToken()
-	c.JSON(http.StatusOK, gin.H{
-		"token": session,
-	})
-}
-
-func (m *JWTMiddleware) Authenticated(c *gin.Context) {
-	headers := c.Request.Header
-	t := headers.Get("Authorization")
-
-	if t == "" {
-		c.Redirect(http.StatusTemporaryRedirect, "auth/login")
-		return
-	}
-
-	token, err := jws.ParseJWT([]byte(t))
-	if err != nil {
-		m.Unauthorized(http.StatusBadRequest, c)
-		return
-	}
-
-	claims := token.Claims()
-	if claims.Get("iat") == nil || claims.Get("exp") == nil ||
-		claims.Get("sub") == nil {
-		m.Unauthorized(http.StatusForbidden, c)
-		return
-	}
-
-	status, err := m.ValidateSessionToken(token)
-	if err != nil || !status {
-		m.Unauthorized(http.StatusForbidden, c)
-		return
-	}
 }
 
 func (m *JWTMiddleware) AuthenticatedFunc() gin.HandlerFunc {

@@ -17,6 +17,7 @@ import (
 	"strings"
 )
 
+// Maps the physical keys with their corresponding byte values
 var KeyMap = map[string]string{
 	"A":          "0x04",
 	"B":          "0x05",
@@ -170,29 +171,29 @@ var AliasMap = map[string]string{
 }
 
 func (m *StreamMessage) ParseMessage() {
-	m.key = strings.ToUpper(m.key)
+	m.Key = strings.ToUpper(m.Key)
 
-	if value, found := KeyMap[m.key]; found {
-		m.key = value
+	if value, found := KeyMap[m.Key]; found {
+		m.Key = value
 		return
 	}
 
-	if alias, found := AliasMap[m.key]; found {
-		m.key = KeyMap[alias]
+	if alias, found := AliasMap[m.Key]; found {
+		m.Key = KeyMap[alias]
 		return
 	}
 
-	m.key = ""
+	m.Key = ""
 }
 
 func (m *StreamMessage) GenerateHID() [8]byte {
 	var array [8]byte
 
-	if m.key == "" {
+	if m.Key == "" {
 		return array
 	}
 
-	bytes, err := hex.DecodeString(m.key)
+	bytes, err := hex.DecodeString(m.Key)
 	if err != nil {
 		return array
 	}
@@ -200,13 +201,13 @@ func (m *StreamMessage) GenerateHID() [8]byte {
 	array[2] = bytes[0]
 
 	switch {
-	case m.ctrl:
+	case m.Ctrl:
 		array[0] = 0x01
-	case m.shift:
+	case m.Shift:
 		array[0] = 0x02
-	case m.alt:
+	case m.Alt:
 		array[0] = 0x04
-	case m.meta:
+	case m.Meta:
 		array[0] = 0x08
 	default:
 		array[0] = 0x00

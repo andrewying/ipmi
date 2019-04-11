@@ -23,15 +23,15 @@ import (
 )
 
 type Stream struct {
-	device string
+	Device string
 }
 
 type StreamMessage struct {
-	key   string
-	ctrl  bool
-	shift bool
-	alt   bool
-	meta  bool
+	Key   string
+	Ctrl  bool
+	Shift bool
+	Alt   bool
+	Meta  bool
 }
 
 func (s *Stream) WebsocketHandler(c *gin.Context) {
@@ -41,7 +41,7 @@ func (s *Stream) WebsocketHandler(c *gin.Context) {
 		panic(err)
 	}
 
-	file, err := os.Create(s.device)
+	file, err := os.Create(s.Device)
 	if err != nil {
 		panic(err)
 	}
@@ -57,7 +57,7 @@ func (s *Stream) WebsocketHandler(c *gin.Context) {
 		}
 
 		message.ParseMessage()
-		if message.key != "" {
+		if message.Key != "" {
 			bytes := message.GenerateHID()
 			bytesEncoded := hex.EncodeToString(bytes[:])
 			bytesEncoded = strings.Replace(bytesEncoded, "0x", "\\x", -1)
