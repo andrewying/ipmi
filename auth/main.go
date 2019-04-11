@@ -2,12 +2,14 @@
  * Copyright (c) Andrew Ying 2019.
  *
  * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * IPMI is free software. You can use, share, and build it under the terms of the
+ * API Copyleft License.
  *
  * As far as the law allows, this software comes as is, without any warranty or
  * condition, and no contributor will be liable to anyone for any damages related
  * to this software or this license, under any kind of legal claim.
+ *
+ * A copy of the API Copyleft License is available at <LICENSE.md>.
  */
 
 package auth
@@ -40,6 +42,7 @@ type JWTMiddleware struct {
 	InterfaceConfig map[string]string
 	// An AuthorisedKeyInterface instance
 	AuthorisedKeys AuthorisedKeysInterface
+	CookieName     string
 	AuthnTimeout   time.Duration
 	SessionTimeout time.Duration
 	Leeway         time.Duration

@@ -2,12 +2,14 @@
  * Copyright (c) Andrew Ying 2019.
  *
  * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * IPMI is free software. You can use, share, and build it under the terms of the
+ * API Copyleft License.
  *
  * As far as the law allows, this software comes as is, without any warranty or
  * condition, and no contributor will be liable to anyone for any damages related
  * to this software or this license, under any kind of legal claim.
+ *
+ * A copy of the API Copyleft License is available at <LICENSE.md>.
  */
 
 package main
@@ -31,13 +33,17 @@ func HomeRenderer(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"name": "Cam FM",
+		"name":       appName,
+		"domain":     domain,
+		"cookieName": cookieName,
 	})
 }
 
 func LoginRenderer(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"name": fmt.Sprintf("Login - %s", " Cam FM"),
+		"name":       fmt.Sprintf("Login - %s", appName),
+		"domain":     domain,
+		"cookieName": cookieName,
 	})
 }
 

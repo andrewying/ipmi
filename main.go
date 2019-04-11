@@ -2,12 +2,14 @@
  * Copyright (c) Andrew Ying 2019.
  *
  * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * IPMI is free software. You can use, share, and build it under the terms of the
+ * API Copyleft License.
  *
  * As far as the law allows, this software comes as is, without any warranty or
  * condition, and no contributor will be liable to anyone for any damages related
  * to this software or this license, under any kind of legal claim.
+ *
+ * A copy of the API Copyleft License is available at <LICENSE.md>.
  */
 
 package main
@@ -22,13 +24,16 @@ import (
 	"github.com/go-webpack/webpack"
 	"github.com/spf13/viper"
 	"html/template"
+	"time"
 )
 
 var (
-	assetDirs = []string{"css", "images", "js"}
-	isDev     bool
-	appName   string
-	config    *viper.Viper
+	assetDirs  = []string{"css", "images", "js"}
+	isDev      bool
+	appName    string
+	domain     string
+	cookieName string
+	config     *viper.Viper
 )
 
 var (
@@ -70,6 +75,8 @@ func loadConfig(path string) {
 
 	config = viper.GetViper()
 	appName = config.GetString("app.name")
+	domain = config.GetString("app.domain")
+	cookieName = config.GetString("app.cookie_name")
 }
 
 func authRoutes(r *gin.Engine) {
@@ -77,9 +84,10 @@ func authRoutes(r *gin.Engine) {
 		PubKeyPath:       config.GetString("keys.public"),
 		PrivKeyPath:      config.GetString("keys.private"),
 		SigningAlgorithm: config.GetString("jwt.algorithm"),
-		// AuthnTimeout: time.Minute * config.GetFloat64("jwt.authn_timeout"),
-		// SessionTimeout: time.Minute * config.GetFloat64("jwt.session_timeout"),
-		// Leeway: time.Minute * config.GetFloat64("jwt.leeway"),
+		CookieName:       cookieName,
+		AuthnTimeout:     time.Minute * time.Duration(config.GetFloat64("jwt.authn_timeout")),
+		SessionTimeout:   time.Minute * time.Duration(config.GetFloat64("jwt.session_timeout")),
+		Leeway:           time.Minute * time.Duration(config.GetFloat64("jwt.leeway")),
 	}
 
 	err := m.MiddlewareInit()
