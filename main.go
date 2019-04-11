@@ -16,6 +16,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/andrewying/ipmi/auth"
+	"github.com/andrewying/ipmi/hid"
 	"github.com/gin-gonic/gin"
 	"github.com/go-webpack/webpack"
 	"github.com/spf13/viper"
@@ -48,6 +50,9 @@ func main() {
 	r.GET("/", HomeRenderer)
 	r.GET("auth/login", LoginRenderer)
 
+	s := &hid.Stream{}
+	r.GET("api/keystrokes", s.WebsocketHandler)
+
 	r.Run()
 }
 
@@ -67,8 +72,8 @@ func loadConfig(path string) {
 	appName = config.GetString("app.name")
 }
 
-func authRoutes(r *gin.Engine) *gin.Engine {
-	m := &JWTMiddleware{
+func authRoutes(r *gin.Engine) {
+	m := &auth.JWTMiddleware{
 		PubKeyPath:       config.GetString("keys.public"),
 		PrivKeyPath:      config.GetString("keys.private"),
 		SigningAlgorithm: config.GetString("jwt.algorithm"),
@@ -83,9 +88,7 @@ func authRoutes(r *gin.Engine) *gin.Engine {
 	}
 
 	r.GET("auth/login", LoginRenderer)
-	r.POST("auth/login", m.LoginHandler)
-
-	return r
+	r.POST("auth/login", m.AuthHandler)
 }
 
 func loadAssets(r *gin.Engine, dev bool) *gin.Engine {

@@ -28,10 +28,11 @@ type SerialConsole struct {
 }
 
 var (
-	PromptPattern           = regexp.MustCompile(`\S+ login:\S*`)
-	AuthenticatedPattern    = regexp.MustCompile(`\S+@\S+:\S+\$`)
-	ErrConsoleNotResponding = errors.New("console not responding")
-	ErrLoginInvalid         = errors.New("username and/or password is incorrect")
+	PromptPattern             = regexp.MustCompile(`\S+ login:\S*`)
+	AuthenticatedPattern      = regexp.MustCompile(`\S+@\S+:\S+\$`)
+	ErrConsoleNotResponding   = errors.New("console not responding")
+	ErrConsoleUnauthenticated = errors.New("console not authenticated")
+	ErrLoginInvalid           = errors.New("username and/or password is incorrect")
 )
 
 // Create a new serial console session
@@ -121,6 +122,20 @@ func (c *SerialConsole) Authenticate(username string, password string) error {
 	// Session is already authenticated
 	if AuthenticatedPattern.Match(buf) {
 		c.Authenticated = true
+	}
+
+	return nil
+}
+
+// Write to serial console
+func (c *SerialConsole) Write(s string) error {
+	if !c.Authenticated {
+		return ErrConsoleUnauthenticated
+	}
+
+	_, err := c.connection.Write([]byte(s))
+	if err != nil {
+		return err
 	}
 
 	return nil
