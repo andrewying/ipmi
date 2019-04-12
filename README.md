@@ -1,4 +1,4 @@
-# IPMI board
+# Adsisto
 
 &copy; Andrew Ying 2019.
 
