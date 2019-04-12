@@ -86,7 +86,7 @@ func (m *JWTMiddleware) Authenticated(c *gin.Context) {
 	cookie, _ := c.Request.Cookie(m.CookieName)
 
 	if t == "" && cookie.String() == "" {
-		c.Redirect(http.StatusTemporaryRedirect, "auth/login")
+		c.Redirect(http.StatusTemporaryRedirect, "/auth/login")
 		return
 	}
 
