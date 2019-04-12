@@ -53,7 +53,7 @@ func main() {
 	loadAssets(r, isDev)
 
 	r.GET("/", HomeRenderer)
-	r.GET("auth/login", LoginRenderer)
+	authRoutes(r)
 
 	s := &hid.Stream{}
 	r.GET("api/keystrokes", s.WebsocketHandler)
@@ -62,6 +62,8 @@ func main() {
 }
 
 func loadConfig(path string) {
+	viper.SetConfigName("config")
+
 	if path != "" {
 		viper.AddConfigPath(path)
 	}
@@ -87,7 +89,7 @@ func authRoutes(r *gin.Engine) {
 		CookieName:       cookieName,
 		AuthnTimeout:     time.Minute * time.Duration(config.GetFloat64("jwt.authn_timeout")),
 		SessionTimeout:   time.Minute * time.Duration(config.GetFloat64("jwt.session_timeout")),
-		Leeway:           time.Minute * time.Duration(config.GetFloat64("jwt.leeway")),
+		Leeway:           time.Second * time.Duration(config.GetFloat64("jwt.leeway")),
 	}
 
 	err := m.MiddlewareInit()

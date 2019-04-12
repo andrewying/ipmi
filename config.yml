@@ -1,0 +1,11 @@
+app:
+  name: Acme Ltd
+  domain: acme.dev
+  cookie_name: ipmi_auth_token
+keys:
+  public: keys/public.pem
+  private: keys/private.pem
+jwt:
+  authn_timeout: 1
+  session_timeout: 60
+  leeway: 15
