@@ -1,8 +1,15 @@
 # Adsisto
 
-&copy; Andrew Ying 2019.
+<p style="text-align:center;">
+<img alt="GitHub" src="https://img.shields.io/github/license/adsisto/adsisto.svg?color=informational">
+</p>
 
-A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor view, and and the ability to reboot computers with standard motherboards remotely as if you were sitting in front of them with a keyboard and monitor. Based on the project by @Fmstrat.
+Copyright &copy; Andrew Ying 2019.
+
+A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor
+view, and and the ability to reboot computers with standard motherboards remotely
+as if you were sitting in front of them with a keyboard and monitor. Inspired by
+the project by [@Fmstrat](https://github.com/Fmstrat/diy-ipmi).
 
 Adsisto is written in Go and React, and is designed to have a small fingerprint
 and to run on single-broad computers.
