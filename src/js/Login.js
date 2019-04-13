@@ -1,17 +1,22 @@
 /*
- * Copyright (c) Andrew Ying 2019.
+ * Adsisto
+ * Copyright (c) 2019 Andrew Ying
  *
- * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of version 3 of the GNU General Public License as published by the
+ * Free Software Foundation.
  *
- * As far as the law allows, this software comes as is, without any warranty or
- * condition, and no contributor will be liable to anyone for any damages related
- * to this software or this license, under any kind of legal claim.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 import React from "react"
 import ReactDOM from "react-dom";
+import { CookiesProvider, withCookies } from "react-cookie";
 import keydown from "react-keydown";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,7 +29,10 @@ class Login extends React.Component {
         this.state = {
             token: "",
             help: false,
-            loginText: "Login"
+            loginText: "Login",
+            loginDisabled: false,
+            success: undefined,
+            redirect: undefined
         };
 
         this.launchHelp = this.launchHelp.bind(this);
@@ -49,26 +57,70 @@ class Login extends React.Component {
     @keydown("enter")
     authenticate(e) {
         e.preventDefault();
+        this.setState({
+            loginText: "Logging in..."
+        });
+
         console.debug("Authenticating with IPMI server...");
+
+        let parent = this;
+
+        fetch("/auth/login", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: this.state.token
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code !== 200) {
+                    parent.setState({
+                        success: false
+                    });
+                    return;
+                }
+
+                parent.props.cookies.set(window.cookieName, data.token, {
+                    secure: true
+                });
+                parent.setState({
+                    redirect: "/"
+                });
+            })
     }
 
     render() {
+        if (this.state.redirect) {
+            window.location.replace(this.state.redirect);
+            return "";
+        }
+
         return (
             <div className="container">
                 <div className="fullwidth-content">
                     <div className="login__container">
                         <h2>Login to IPMI</h2>
-                        <div className="alert-warning">
+                        { this.state.success === false ? <div className="alert-danger">
+                            <strong>Identity token invalid</strong>
+                            <p>The identity token you have provided was invalid.
+                            Please check that you have followed the instructions
+                            and that the token you enter was not expired.</p>
+                            <p>If you continue to have issues logging in, please
+                            contact your system administrator.</p>
+                        </div> : <div className="alert-warning">
                             <p><strong>Access to this system is restricted to authorised
-                            users only.</strong> Use by others will be in contravention
-                            of the <i>Computer Misuse Act 1990</i>.</p>
+                                users only.</strong> Use by others will be in contravention
+                                of the <i>Computer Misuse Act 1990</i>.</p>
                             <p>All users are informed, in accordance to the <i>
-                            Investigatory Powers (Interception by Businesses etc.
-                            for Monitoring and Record-keeping Purposes) Regulations
-                            2018</i>, that their communication may be intercepted
-                            as permitted by the <i>Investigatory Powers Act 2016
-                            </i>.</p>
-                        </div>
+                                Investigatory Powers (Interception by Businesses etc.
+                                for Monitoring and Record-keeping Purposes) Regulations
+                                2018</i>, that their communication may be intercepted
+                                as permitted by the <i>Investigatory Powers Act 2016
+                                </i>.</p>
+                        </div> }
                         <form className="login__form">
                             <div className="input-group">
                                 <span><FontAwesomeIcon icon={[ "fas", "lock" ]} /></span>
@@ -82,6 +134,7 @@ class Login extends React.Component {
                             </a>
                             <input type="submit" className="btn btn-primary"
                                    onClick={ this.authenticate } readOnly={ true }
+                                   disabled={ this.state.loginDisabled }
                                    value={ this.state.loginText } />
                         </form>
                     </div>
@@ -95,8 +148,11 @@ class Login extends React.Component {
 }
 
 const MOUNT_NODE = document.getElementById("app");
+Login = withCookies(Login);
 
 ReactDOM.render(
-    <Login />,
+    <CookiesProvider>
+        <Login />
+    </CookiesProvider>,
     MOUNT_NODE,
 );
