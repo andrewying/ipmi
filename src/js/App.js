@@ -1,13 +1,17 @@
 /*
- * Copyright (c) Andrew Ying 2019.
+ * Adsisto
+ * Copyright (c) 2019 Andrew Ying
  *
- * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of version 3 of the GNU General Public License as published by the
+ * Free Software Foundation.
  *
- * As far as the law allows, this software comes as is, without any warranty or
- * condition, and no contributor will be liable to anyone for any damages related
- * to this software or this license, under any kind of legal claim.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 import "@babel/polyfill";
@@ -17,6 +21,8 @@ import ReactDOM from "react-dom";
 import { HashRouter as Router, Route, Link } from "react-router-dom";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
+import { CookiesProvider, withCookies } from "react-cookie";
+
 import Console from "./components/Console";
 import Header from "./components/Header";
 import Images from "./components/Images";
@@ -24,6 +30,12 @@ import app from "./reducers";
 
 class App extends React.Component {
     render() {
+        const cookie = this.props.cookies.get(window.cookieName);
+        if (!cookie) {
+            window.location.replace("/auth/login");
+            return "";
+        }
+
         return (
             <div className="container">
                 <Header />
@@ -51,10 +63,13 @@ class App extends React.Component {
 
 const store = createStore(app);
 const MOUNT_NODE = document.getElementById("app");
+App = withCookies(App);
 
 ReactDOM.render(
-    <Provider store={store}>
-        <App />
-    </Provider>,
+    <CookiesProvider>
+        <Provider store={store}>
+            <App />
+        </Provider>
+    </CookiesProvider>,
     MOUNT_NODE,
 );
