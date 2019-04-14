@@ -2,6 +2,27 @@ app:
   name: Acme Ltd
   domain: acme.dev
   cookie_name: ipmi_auth_token
+usb:
+  # Path for the emulated USB HID
+  hid_path: /dev/hid0
+gpio:
+  # List of options for Raspberry Pi: you can move individual pins around
+  # See https://pinout.xyz/resources/raspberry-pi-pinout.png
+  inputs:
+    - 23
+    - 24
+    - 25
+    - 12
+    - 16
+  outputs:
+    - 4
+    - 17
+    - 27
+    - 22
+    - 5
+    - 6
+    - 13
+    - 26
 keys:
   public: keys/public.pem
   private: keys/private.pem
