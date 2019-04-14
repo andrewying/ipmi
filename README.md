@@ -1,10 +1,10 @@
-# Adsisto
+<h1 align="center">Adsisto</h1>
 
-<p style="text-align:center;">
+<p align="center">
 <img alt="GitHub" src="https://img.shields.io/github/license/adsisto/adsisto.svg?color=informational">
 </p>
 
-Copyright &copy; Andrew Ying 2019.
+<p align="center"><i>Copyright &copy; Andrew Ying 2019.</i></p>
 
 A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor
 view, and and the ability to reboot computers with standard motherboards remotely
@@ -16,7 +16,7 @@ and to run on single-broad computers.
 
 ## Installation
 
-For installation instructions, see the [documentation](https://adsisto.github.io/adsisto/).
+For installation instructions, see the [documentation](https://adsisto.org).
 
 ## License
 
