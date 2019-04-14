@@ -1,15 +1,17 @@
 /*
- * Copyright (c) Andrew Ying 2019.
+ * Adsisto
+ * Copyright (c) 2019 Andrew Ying
  *
- * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is free software. You can use, share, and build it under the terms of the
- * API Copyleft License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of version 3 of the GNU General Public License as published by the
+ * Free Software Foundation.
  *
- * As far as the law allows, this software comes as is, without any warranty or
- * condition, and no contributor will be liable to anyone for any damages related
- * to this software or this license, under any kind of legal claim.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  *
- * A copy of the API Copyleft License is available at <LICENSE.md>.
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package main
@@ -18,12 +20,14 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/andrewying/ipmi/auth"
-	"github.com/andrewying/ipmi/hid"
+	"github.com/adsisto/adsisto/auth"
+	"github.com/adsisto/adsisto/hid"
 	"github.com/gin-gonic/gin"
 	"github.com/go-webpack/webpack"
 	"github.com/spf13/viper"
 	"html/template"
+	"log"
+	"os"
 	"time"
 )
 
@@ -42,20 +46,30 @@ var (
 
 func main() {
 	isDev = *flag.Bool("dev", false, "development mode")
-	// configPath := flag.String("config", "", "path to config file")
+	configPath := flag.String("config", "", "path to config file")
+	loadConfig(*configPath)
+
+	file, err := os.OpenFile(config.GetString("app.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	log.SetOutput(file)
 
 	r := gin.Default()
 	if !isDev {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// loadConfig(*configPath)
 	loadAssets(r, isDev)
 
 	r.GET("/", HomeRenderer)
 	authRoutes(r)
 
-	s := &hid.Stream{}
+	s := &hid.Stream{
+		Device: config.GetString("usb.hid_device"),
+	}
 	r.GET("api/keystrokes", s.WebsocketHandler)
 
 	r.Run()
@@ -67,12 +81,12 @@ func loadConfig(path string) {
 	if path != "" {
 		viper.AddConfigPath(path)
 	}
-	viper.AddConfigPath("/etc/ipmi")
+	viper.AddConfigPath("/etc/adsisto")
 	viper.AddConfigPath(".")
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(ErrMissingConfig)
+		log.Panic(ErrMissingConfig)
 	}
 
 	config = viper.GetViper()
@@ -87,14 +101,14 @@ func authRoutes(r *gin.Engine) {
 		PrivKeyPath:      config.GetString("keys.private"),
 		SigningAlgorithm: config.GetString("jwt.algorithm"),
 		CookieName:       cookieName,
-		AuthnTimeout:     time.Minute * time.Duration(config.GetFloat64("jwt.authn_timeout")),
-		SessionTimeout:   time.Minute * time.Duration(config.GetFloat64("jwt.session_timeout")),
-		Leeway:           time.Second * time.Duration(config.GetFloat64("jwt.leeway")),
+		AuthnTimeout:     time.Minute * time.Duration(config.GetInt("jwt.authn_timeout")),
+		SessionTimeout:   time.Minute * time.Duration(config.GetInt("jwt.session_timeout")),
+		Leeway:           time.Second * time.Duration(config.GetInt("jwt.leeway")),
 	}
 
 	err := m.MiddlewareInit()
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	r.GET("auth/login", LoginRenderer)
