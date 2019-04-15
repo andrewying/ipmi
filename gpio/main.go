@@ -25,7 +25,8 @@ import (
 )
 
 type Config struct {
-	Pins []string
+	InputPins  []string
+	OutputPins []string
 }
 
 var (
@@ -40,7 +41,7 @@ func (c *Config) SetupPins() []error {
 		return ers
 	}
 
-	for _, pin := range c.Pins {
+	for _, pin := range c.OutputPins {
 		p := gpioreg.ByName(pin)
 		err := p.Out(gpio.Low)
 		if err != nil {
@@ -53,7 +54,7 @@ func (c *Config) SetupPins() []error {
 func (c *Config) TogglePin(pin string) error {
 	found := false
 
-	for _, p := range c.Pins {
+	for _, p := range c.OutputPins {
 		if pin == p {
 			found = true
 			break
