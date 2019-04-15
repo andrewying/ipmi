@@ -1,15 +1,17 @@
 /*
- * Copyright (c) Andrew Ying 2019.
+ * Adsisto
+ * Copyright (c) 2019 Andrew Ying
  *
- * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is free software. You can use, share, and build it under the terms of the
- * API Copyleft License.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of version 3 of the GNU General Public License as published by the
+ * Free Software Foundation.
  *
- * As far as the law allows, this software comes as is, without any warranty or
- * condition, and no contributor will be liable to anyone for any damages related
- * to this software or this license, under any kind of legal claim.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  *
- * A copy of the API Copyleft License is available at <LICENSE.md>.
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package auth
@@ -21,6 +23,7 @@ import (
 	"github.com/SermoDigital/jose/jwt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"log"
 	"strings"
 	"time"
 )
@@ -123,6 +126,7 @@ func (m *JWTMiddleware) MiddlewareInit() error {
 
 	if m.AuthorisedKeys == nil {
 		m.AuthorisedKeys = keysInterfaces[m.Interface]
+		m.AuthorisedKeys.New(m.InterfaceConfig)
 	}
 
 	return nil
@@ -160,6 +164,7 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 		return false, nil
 	}
 	if err != nil {
+		log.Print(err)
 		return false, err
 	}
 
@@ -169,6 +174,7 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 		validator,
 	)
 	if err != nil {
+		log.Print(err)
 		return false, nil
 	}
 
