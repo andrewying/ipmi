@@ -22,7 +22,8 @@ For installation instructions, see the [documentation](https://adsisto.org).
 
 Adsisto is free software: you can redistribute it and/or modify it under the terms
 of version 3 of the [GNU General Public License](LICENSE.md) as published by the
-Free Software Foundation.
+Free Software Foundation. In addition, this program is also subject to certain
+additional terms available [here](SUPPLEMENT.md).
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
