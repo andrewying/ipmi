@@ -4,7 +4,8 @@
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU General Public License as published by the
- * Free Software Foundation.
+ * Free Software Foundation. In addition, this program is also subject to certain
+ * additional terms available at <SUPPLEMENT.md>.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
@@ -21,7 +22,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/adsisto/adsisto/webrtc/gst"
-	"github.com/pion/webrtc"
+	"github.com/gin-gonic/gin"
+	"github.com/pion/webrtc/v2"
+	"io/ioutil"
+	"log"
 	"math/rand"
 )
 
@@ -81,6 +85,25 @@ func (c *Config) StreamStart() (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(encoded), nil
+}
+
+func (c *Config) SdpHandler(ctx *gin.Context) {
+	body, _ := ioutil.ReadAll(ctx.Request.Body)
+	obj, err := base64.StdEncoding.DecodeString(string(body))
+	if err != nil {
+		log.Println(err)
+	}
+
+	description := webrtc.SessionDescription{}
+	err = json.Unmarshal(obj, description)
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = c.RemoteCallback(description)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (c *Config) RemoteCallback(answer webrtc.SessionDescription) error {

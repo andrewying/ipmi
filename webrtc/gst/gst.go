@@ -35,7 +35,6 @@ package gst
 import "C"
 import (
 	"fmt"
-	"github.com/pion/webrtc"
 	"sync"
 	"unsafe"
 

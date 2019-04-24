@@ -23,13 +23,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/adsisto/adsisto/auth"
-	"github.com/adsisto/adsisto/hid"
+	"github.com/adsisto/adsisto/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-webpack/webpack"
 	"github.com/hashicorp/logutils"
 	"github.com/spf13/viper"
 	"html/template"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -85,7 +86,7 @@ func main() {
 	r.GET("/", HomeRenderer)
 	authRoutes(r)
 
-	s := &hid.Stream{
+	s := &utils.HidStream{
 		Device: config.GetString("usb.hid_device"),
 	}
 	r.GET("api/keystrokes", s.WebsocketHandler)
