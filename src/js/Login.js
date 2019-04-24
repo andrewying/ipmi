@@ -4,7 +4,8 @@
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU General Public License as published by the
- * Free Software Foundation.
+ * Free Software Foundation. In addition, this program is also subject to certain
+ * additional terms available at <SUPPLEMENT.md>.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
@@ -79,7 +80,8 @@ class Login extends React.Component {
             .then(data => {
                 if (data.code !== 200) {
                     parent.setState({
-                        success: false
+                        success: false,
+                        loginText: "Login"
                     });
                     return;
                 }
@@ -104,14 +106,14 @@ class Login extends React.Component {
                 <div className="fullwidth-content">
                     <div className="login__container">
                         <h2>Login to IPMI</h2>
-                        { this.state.success === false ? <div className="alert-danger">
-                            <strong>Identity token invalid</strong>
+                        { this.state.success === false ? <div className="alert alert-danger">
+                            <p><strong>Identity token invalid</strong></p>
                             <p>The identity token you have provided was invalid.
                             Please check that you have followed the instructions
                             and that the token you enter was not expired.</p>
                             <p>If you continue to have issues logging in, please
                             contact your system administrator.</p>
-                        </div> : <div className="alert-warning">
+                        </div> : <div className="alert alert-warning">
                             <p><strong>Access to this system is restricted to authorised
                                 users only.</strong> Use by others will be in contravention
                                 of the <i>Computer Misuse Act 1990</i>.</p>
@@ -126,9 +128,8 @@ class Login extends React.Component {
                             <div className="input-group">
                                 <span><FontAwesomeIcon icon={[ "fas", "lock" ]} /></span>
                                 <input type="password" id="token" name="token"
-                                       placeholder="Security Token"
-                                       value={ this.state.token }
-                                       onChange={ this.fieldOnChange }/>
+                                       placeholder="Security Token" value={ this.state.token }
+                                       onChange={ this.fieldOnChange } maxLength={ 500 }/>
                             </div>
                             <a className="help" onClick={ this.launchHelp }>
                                 Need help generating the token? Click here.

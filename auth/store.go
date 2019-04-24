@@ -1,13 +1,18 @@
 /*
- * Copyright (c) Andrew Ying 2019.
+ * Adsisto
+ * Copyright (c) 2019 Andrew Ying
  *
- * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of version 3 of the GNU General Public License as published by the
+ * Free Software Foundation. In addition, this program is also subject to certain
+ * additional terms available at <SUPPLEMENT.md>.
  *
- * As far as the law allows, this software comes as is, without any warranty or
- * condition, and no contributor will be liable to anyone for any damages related
- * to this software or this license, under any kind of legal claim.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package auth
@@ -15,6 +20,7 @@ package auth
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"reflect"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -34,7 +40,7 @@ var (
 func (m *MysqlKeyStore) New(config map[string]string) {
 	store := reflect.ValueOf(m)
 	for key, item := range config {
-		value := store.FieldByName(key)
+		value := reflect.Indirect(store).FieldByName(key)
 		if !value.IsValid() || value.Type().Name() != "string" || !value.CanSet() {
 			continue
 		}
@@ -46,12 +52,14 @@ func (m *MysqlKeyStore) New(config map[string]string) {
 func (m *MysqlKeyStore) Get(identity ...interface{}) (string, error) {
 	db, err := sql.Open("mysql", m.Dsn)
 	if err != nil {
+		log.Printf("[ERROR] Failed to connect to MySQL server: %s\n", err)
 		return "", err
 	}
 
 	if m.query == nil {
 		stmt, err := db.Prepare(m.RawQuery)
 		if err != nil {
+			log.Printf("[ERROR] Failed to prepare SQL query: %s\n", err)
 			return "", err
 		}
 
@@ -60,6 +68,7 @@ func (m *MysqlKeyStore) Get(identity ...interface{}) (string, error) {
 
 	rows, err := m.query.Query(identity)
 	if err != nil {
+		log.Printf("[ERROR] Failed to execute SQL query: %s\n", err)
 		return "", err
 	}
 

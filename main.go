@@ -123,10 +123,37 @@ func loadConfig(path string) {
 }
 
 func authRoutes(r *gin.Engine) {
+	storeConfig := config.GetStringMapString("keys.store_config")
+	parsedStoreConfig := make(map[string]string)
+
+	for index, value := range storeConfig {
+		index = strings.TrimSpace(index)
+		chars := []rune(index)
+		buffer := make([]rune, 0, len(index))
+
+		var prev rune
+		for i, curr := range chars {
+			if i == 0 {
+				buffer = append(buffer, unicode.ToUpper(curr))
+			} else if curr != '_' {
+				if prev == '_' {
+					buffer = append(buffer, unicode.ToUpper(curr))
+				} else {
+					buffer = append(buffer, unicode.ToLower(curr))
+				}
+			}
+			prev = curr
+		}
+
+		parsedStoreConfig[string(buffer)] = value
+	}
+
 	m := &auth.JWTMiddleware{
-		PubKeyPath:       config.GetString("keys.public"),
-		PrivKeyPath:      config.GetString("keys.private"),
+		PubKeyPath:       config.GetString("keys.server.public"),
+		PrivKeyPath:      config.GetString("keys.server.private"),
 		SigningAlgorithm: config.GetString("jwt.algorithm"),
+		Interface:        config.GetString("keys.store"),
+		InterfaceConfig:  parsedStoreConfig,
 		CookieName:       cookieName,
 		AuthnTimeout:     time.Minute * time.Duration(config.GetInt("jwt.authn_timeout")),
 		SessionTimeout:   time.Minute * time.Duration(config.GetInt("jwt.session_timeout")),

@@ -22,6 +22,7 @@ keys:
   public: keys/public.pem
   private: keys/private.pem
 jwt:
+  algorithm: ES512
   authn_timeout: 1
   session_timeout: 60
   leeway: 15

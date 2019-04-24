@@ -4,7 +4,8 @@
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU General Public License as published by the
- * Free Software Foundation.
+ * Free Software Foundation. In addition, this program is also subject to certain
+ * additional terms available at <SUPPLEMENT.md>.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
@@ -71,6 +72,8 @@ var (
 	ErrInvalidToken       = errors.New("invalid JWT")
 )
 
+// MiddlewareInit is responsible for the setting up of the authentication
+// middleware.
 func (m *JWTMiddleware) MiddlewareInit() error {
 	switch strings.ToUpper(m.SigningAlgorithm) {
 	case "RS256":
@@ -132,25 +135,31 @@ func (m *JWTMiddleware) MiddlewareInit() error {
 	return nil
 }
 
-// Validate authentication request for a validly signed JWT
+// ValidateAuthnRequest validates authentication request for a validly signed JWT
 func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
+	log.Printf(
+		"[INFO] Validating authentication token \"%s\"\n",
+		t,
+	)
+
 	token, err := jws.ParseJWT([]byte(t))
 	if err != nil {
 		return false, ErrInvalidToken
 	}
 
 	claims := token.Claims()
-	issuer, _ := claims.Issuer()
+	issuer := claims.Get("iss")
+	log.Printf("[INFO] Parsed authentication token from %s", issuer)
 
 	validator := jws.NewValidator(
 		jws.Claims{},
 		m.Leeway,
 		m.Leeway,
 		func(claims jws.Claims) error {
-			exp, _ := claims.Expiration()
-			iss, _ := claims.IssuedAt()
+			exp := time.Unix(claims.Get("exp").(int64), 0)
+			iat := time.Unix(claims.Get("iat").(int64), 0)
 
-			expectedExp := iss.Add(m.AuthnTimeout)
+			expectedExp := iat.Add(m.AuthnTimeout)
 			if expectedExp.Before(exp) {
 				return ErrInvalidExpDuration
 			}
@@ -181,7 +190,8 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 	return true, nil
 }
 
-// Generate session token, in the form of a valid JWT to be signed by the user.
+// GetSessionToken generate session token, in the form of a valid JWT signed
+// using the server's private key.
 func (m *JWTMiddleware) GetSessionToken() (string, error) {
 	now := time.Now()
 
@@ -199,6 +209,7 @@ func (m *JWTMiddleware) GetSessionToken() (string, error) {
 	return string(bytes[:]), nil
 }
 
+// ValidateSessionToken validates the validity of the JWT token.
 func (m *JWTMiddleware) ValidateSessionToken(t jwt.JWT) (bool, error) {
 	validator := jws.NewValidator(
 		jws.Claims{},
