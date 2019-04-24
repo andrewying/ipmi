@@ -18,6 +18,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
@@ -25,11 +26,16 @@ import (
 	"github.com/adsisto/adsisto/hid"
 	"github.com/gin-gonic/gin"
 	"github.com/go-webpack/webpack"
+	"github.com/hashicorp/logutils"
 	"github.com/spf13/viper"
 	"html/template"
 	"log"
 	"os"
+	"os/signal"
+	"strings"
+	"syscall"
 	"time"
+	"unicode"
 )
 
 var (
@@ -50,13 +56,24 @@ func main() {
 	configPath := flag.String("config", "", "path to config file")
 	loadConfig(*configPath)
 
-	file, err := os.OpenFile(config.GetString("app.log"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile(
+		config.GetString("app.log.file"),
+		os.O_RDWR|os.O_CREATE|os.O_APPEND,
+		0666,
+	)
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
 
-	log.SetOutput(file)
+	filter := &logutils.LevelFilter{
+		Levels: []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
+		MinLevel: logutils.LogLevel(
+			strings.ToUpper(config.GetString("app.log.level")),
+		),
+		Writer: file,
+	}
+	log.SetOutput(filter)
 
 	r := gin.Default()
 	if !isDev {

@@ -2,6 +2,9 @@ app:
   name: Acme Ltd
   domain: acme.dev
   cookie_name: ipmi_auth_token
+  log:
+    level: debug
+    file: ./app.log
 usb:
   # Path for the emulated USB HID
   hid_path: /dev/hid0

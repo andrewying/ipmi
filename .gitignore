@@ -1,8 +1,10 @@
 .DS_Store
 yarn-error.log
 manifest.json
+app.log
 
 .idea
+keys
 node_modules
 public/css
 public/js
