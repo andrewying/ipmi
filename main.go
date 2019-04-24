@@ -4,7 +4,8 @@
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU General Public License as published by the
- * Free Software Foundation.
+ * Free Software Foundation. In addition, this program is also subject to certain
+ * additional terms available at <SUPPLEMENT.md>.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
@@ -71,8 +72,34 @@ func main() {
 		Device: config.GetString("usb.hid_device"),
 	}
 	r.GET("api/keystrokes", s.WebsocketHandler)
+	images := &ImagesUploader{}
+	r.POST("api/images", images.UploadHandler)
 
-	r.Run()
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: r,
+	}
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("[ERROR] Error when starting server: %s\n", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	<-quit
+	log.Println("[INFO] Gracefully shutdown server")
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("[ERROR] Error during server shutdown: %s\n", err)
+	}
+
+	<-ctx.Done()
+	log.Println("[INFO] Server exiting")
 }
 
 func loadConfig(path string) {
