@@ -4,7 +4,8 @@
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of version 3 of the GNU General Public License as published by the
- * Free Software Foundation.
+ * Free Software Foundation. In addition, this program is also subject to certain
+ * additional terms available at <SUPPLEMENT.md>.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
@@ -31,10 +32,10 @@ import app from "./reducers";
 class App extends React.Component {
     render() {
         const cookie = this.props.cookies.get(window.cookieName);
-        if (!cookie) {
-            window.location.replace("/auth/login");
-            return "";
-        }
+        // if (!cookie) {
+        //    window.location.replace("/auth/login");
+        //    return "";
+        // }
 
         return (
             <div className="container">

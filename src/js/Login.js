@@ -21,6 +21,7 @@ import { CookiesProvider, withCookies } from "react-cookie";
 import keydown from "react-keydown";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
 import Logo from "../images/logo.png";
 
 class Login extends React.Component {
@@ -126,7 +127,7 @@ class Login extends React.Component {
                         </div> }
                         <form className="login__form">
                             <div className="input-group">
-                                <span><FontAwesomeIcon icon={[ "fas", "lock" ]} /></span>
+                                <span><FontAwesomeIcon icon={ faLock } /></span>
                                 <input type="password" id="token" name="token"
                                        placeholder="Security Token" value={ this.state.token }
                                        onChange={ this.fieldOnChange } maxLength={ 500 }/>

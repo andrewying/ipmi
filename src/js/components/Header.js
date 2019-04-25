@@ -1,13 +1,18 @@
 /*
- * Copyright (c) Andrew Ying 2019.
+ * Adsisto
+ * Copyright (c) 2019 Andrew Ying
  *
- * This file is part of the Intelligent Platform Management Interface (IPMI) software.
- * IPMI is licensed under the API Copyleft License. A copy of the license is available
- * at LICENSE.md.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of version 3 of the GNU General Public License as published by the
+ * Free Software Foundation. In addition, this program is also subject to certain
+ * additional terms available at <SUPPLEMENT.md>.
  *
- * As far as the law allows, this software comes as is, without any warranty or
- * condition, and no contributor will be liable to anyone for any damages related
- * to this software or this license, under any kind of legal claim.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 import React from "react";
@@ -21,7 +26,7 @@ class Header extends React.Component {
         return (
             <header className="header">
                 <img className="header__logo" src={ Logo } alt="Cam FM"/>
-                <h1 className="header__title">IPMI <small>v1.0.0</small></h1>
+                <h1 className="header__title">Adsisto <small>v1.0.0</small></h1>
                 <div className="header__status">
                     <strong>Hostname:</strong><br />
                     <strong>ISO file:</strong>&nbsp;
