@@ -26,9 +26,10 @@ const production = process.env.NODE_ENV === "production";
 
 let config = {
     mode: production ? "production" : "development",
+    context: path.resolve(__dirname, "src"),
     entry: {
-        app: path.join(__dirname, "src", "index.js"),
-        login: path.join(__dirname, "src", "login.js"),
+        app: "./index.js",
+        login: "./login.js",
     },
     output: {
         path: path.join(__dirname, "public"),
@@ -43,11 +44,11 @@ let config = {
                 exclude: /node_modules/
             },
             {
-                test: /\.(jpe?g|png|gif)$/,
+                test: /\.(jpe?g|png|gif|ttf|svg)$/,
                 use: {
                     loader: "file-loader",
                     options: {
-                        name: 'images/[name].[ext]',
+                        name: '[path][name].[ext]',
                     },
                 }
             },
