@@ -1,6 +1,7 @@
-<h1 align="center">Adsisto</h1>
+<div align="center"><img src=".github/logo.png" width="300px" alt="Adsisto" /></div>
 
 <p align="center">
+<a href="https://travis-ci.com/adsisto/adsisto"><img src="https://travis-ci.com/adsisto/adsisto.svg?branch=master" alt="Build Status"></a>&nbsp;
 <img alt="GitHub" src="https://img.shields.io/github/license/adsisto/adsisto.svg?color=informational">
 </p>
 
