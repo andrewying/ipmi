@@ -119,7 +119,6 @@ if (production) {
     config.plugins.push(
         new webpack.NamedModulesPlugin(),
     );
-    config.watch = true;
     config.devtool = "source-map";
 }
 
