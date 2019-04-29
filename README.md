@@ -8,12 +8,12 @@
 <p align="center"><i>Copyright &copy; Andrew Ying 2019.</i></p>
 
 A web-accessable IPMI / IP KVM system that provides full keyboard control, monitor
-view, and and the ability to reboot computers with standard motherboards remotely
-as if you were sitting in front of them with a keyboard and monitor. Inspired by
-the project by [@Fmstrat](https://github.com/Fmstrat/diy-ipmi).
+view, mount disk images, and and the ability to reboot computers with standard
+motherboards remotely as if you were sitting in front of them with a keyboard and
+monitor. Inspired by the project by [@Fmstrat](https://github.com/Fmstrat/diy-ipmi).
 
-Adsisto is written in Go and React, and is designed to have a small fingerprint
-and to run on single-broad computers.
+Adsisto is written in [Go](https://golang.org/) and [React](https://reactjs.org/),
+and is designed to have a small fingerprint and to run on single-board computers.
 
 ## Installation
 
@@ -32,3 +32,8 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
+
+## Documentation
+
+The documentation is separately licensed under the [Creative Commons Attribution-ShareAlike
+4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).

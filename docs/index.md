@@ -1,5 +1,6 @@
 ---
 title: Home
+nav_order: 0
 ---
 
 # Adsisto
@@ -11,12 +12,15 @@ were sitting in front of them with a keyboard and monitor.
 ## License
 
 Adsisto is free software: you can redistribute it and/or modify it under the terms
-of version 3 of the [GNU General Public License](license.md) as published by the
-Free Software Foundation.
+of version 3 of the GNU General Public License as published by the Free Software
+Foundation. In addition, this program is also subject to certain additional terms.
+A copy of the license together with the additional terms is available [here](license.md).
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
 PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with
-this program.  If not, see <https://www.gnu.org/licenses/>.
+## Documentation
+
+This documentation is separately licensed under the [Creative Commons Attribution-ShareAlike
+4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
