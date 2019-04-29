@@ -96,7 +96,7 @@ function runWatcher() {
     compiler.watch(config.watch, compilerCallback);
     console.log('[WEBPACK]'.bgBlue.white + ' Asset builder started...');
 
-    server = exec('go run .',{
+    server = exec('go run . --dev',{
         cwd: path.resolve(__dirname, '../')
     }, (error, stdout, stderr) => {
         if (error) {

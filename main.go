@@ -19,6 +19,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -29,6 +30,7 @@ import (
 	"github.com/hashicorp/logutils"
 	"github.com/spf13/viper"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -75,6 +77,36 @@ func main() {
 		Writer: file,
 	}
 	log.SetOutput(filter)
+	gin.DisableConsoleColor()
+	gin.DefaultWriter = io.MultiWriter(filter)
+
+	var server *http.Server
+	if isDev {
+		server = &http.Server{
+			Addr: ":8080",
+		}
+	} else {
+		privateKey := flag.String("key", "", "path to private key")
+		certificate := flag.String("certs", "", "path to certificate chain")
+
+		if *privateKey == "" || *certificate == "" {
+			log.Fatalln("[ERROR] Failed to start web server: SSL certificate" +
+				" and/or private key are missing")
+		}
+
+		cert, err := tls.LoadX509KeyPair(*certificate, *privateKey)
+		if err != nil {
+			log.Printf("[ERROR] Unable to parse X509 key pair: %s\n", err)
+			log.Fatalln("[ERROR] Failed to start web server")
+		}
+
+		server = &http.Server{
+			Addr: ":https",
+			TLSConfig: &tls.Config{
+				Certificates: []tls.Certificate{cert},
+			},
+		}
+	}
 
 	r := gin.Default()
 	if !isDev {
@@ -93,13 +125,17 @@ func main() {
 	images := &ImagesUploader{}
 	r.POST("api/images", images.UploadHandler)
 
-	server := &http.Server{
-		Addr:    ":8080",
-		Handler: r,
-	}
+	server.Handler = r
 
 	go func() {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		var err error
+		if isDev {
+			err = server.ListenAndServe()
+		} else {
+			err = server.ListenAndServeTLS("", "")
+		}
+
+		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("[ERROR] Error when starting server: %s\n", err)
 		}
 	}()
