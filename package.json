@@ -53,7 +53,7 @@
     "react-dropzone": "^10.1.4",
     "react-keydown": "^1.9.8",
     "react-live-clock": "^3.1.0",
-    "react-redux": "^7.0.2",
+    "react-redux": "^7.0.3",
     "react-router-dom": "^5.0.0",
     "react-websocket": "^2.0.1",
     "redux": "^4.0.1",
