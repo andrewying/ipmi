@@ -17,8 +17,7 @@
 
 @import "~html5-boilerplate/dist/css/normalize";
 @import "~html5-boilerplate/dist/css/main";
-
-$primary: #124a4e;
+@import "variables";
 
 @font-face {
   font-family: "Open Sans";
@@ -93,30 +92,54 @@ $primary: #124a4e;
 html {
   color: $primary;
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+  font-size: $base-font-size;
 }
 
 body {
   margin: 0;
-  background-color: #f8f9f9;
+  background-color: mix(darken($light-gray, 1%), $primary, 99%);
 }
 
-.container {
-  display: flex;
-  width: 100%;
-  min-height: 100%;
-  flex-wrap: wrap;
+.text-description {
+  color: adjust-color($primary, $lightness: 25%, $saturation: -70%);
+  font-size: .9rem;
+}
+
+.mt-1 {
+  margin-top: .25rem;
+}
+
+.mt-2 {
+  margin-top: .5rem;
+}
+
+.mb-1 {
+  margin-bottom: .25rem;
+}
+
+.mb-2 {
+  margin-bottom: .5rem;
+}
+
+a {
+  color: adjust-color($primary, $lightness: 20%, $saturation: -40%);
+  text-decoration: none;
+
+  &:hover {
+    color: darken($primary, 15%);
+    text-decoration: underline;
+  }
 }
 
 .btn {
   display: inline-block;
-  text-decoration: none;
+  text-decoration: none !important;
   text-align: center;
   vertical-align: middle;
-  border-radius: .25rem;
+  border-radius: $base-border-radius;
   color: $primary;
-  margin: .25rem 0 .5rem 0;
   padding: .45rem .65rem;
+  user-select: none;
   border: 1px solid transparent;
   transition: color .15s ease-in-out, background-color .15s ease-in-out,
     border-color .15s ease-in-out, box-shadow .15s ease-in-out;
@@ -124,34 +147,34 @@ body {
   &-primary {
     border-color: $primary;
     background-color: lighten($primary, 7.5%);
-    color: #fefefe;
+    color: $light-gray;
 
     &:hover {
       background-color: $primary;
     }
   }
-}
 
-a {
-  color: $primary;
-  text-decoration: none;
+  &-outline {
+    border-color: adjust-color($primary, $saturation: -50%, $lightness: 25%);
+    color: adjust-color($primary, $saturation: -40%, $lightness: 10%);
 
-  &:hover {
-    color: darken($primary, 15%);
-    text-decoration: none;
+    &:hover {
+      background-color: mix(darken($light-gray, 2.5%), $primary, 90%);
+    }
   }
 }
 
 input:not([type=submit]) {
   display: block;
+  box-sizing: border-box;
   width: 80%;
   padding: .35rem .75rem;
   font-size: 1rem;
   line-height: 1.5;
   color: $primary;
-  background-color: #fefefe;
+  background-color: $light-gray;
   background-clip: padding-box;
-  border: 1px solid #ced4da;
+  border: 1px solid $dark-gray;
   border-radius: .25rem;
 }
 
@@ -161,14 +184,14 @@ input:not([type=submit]) {
   span {
     padding: .35rem .35rem .35rem .75rem;
     color: $primary;
-    background-color: #fefefe;
+    background-color: $light-gray;
     background-clip: padding-box;
     text-align: center;
     white-space: nowrap;
 
-    border: 1px solid #ced4da;
+    border: 1px solid $dark-gray;
     border-right: none;
-    border-radius: .25rem 0 0 .25rem;
+    border-radius: $base-border-radius 0 0 $base-border-radius;
 
     svg {
       height: 100%;
@@ -178,14 +201,14 @@ input:not([type=submit]) {
   input {
     padding: .35rem .75rem .35rem .35rem;
     border-left: none;
-    border-radius: 0 .25rem .25rem 0;
+    border-radius: 0 $base-border-radius $base-border-radius 0;
     margin-bottom: 0;
   }
 }
 
 .alert {
   border: 1px solid transparent;
-  border-radius: .25rem;
+  border-radius: $base-border-radius;
   padding: 0 1rem;
   margin-bottom: 2rem;
   font-size: .9rem;
@@ -215,18 +238,25 @@ input:not([type=submit]) {
 
 a.help {
   display: block;
-  color: desaturate(lighten($primary, 35%), 50%);
+  color: adjust-color($primary, $saturation: -50%, $lightness: 35%);
   font-size: 90%;
 
   &:hover {
-    color: desaturate(lighten($primary, 20%), 50%);
+    color: adjust-color($primary, $saturation: -50%, $lightness: 20%);
     text-decoration: underline;
   }
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  min-height: 100%;
 }
 
 .header {
   display: flex;
   align-items: center;
+  box-sizing: border-box;
   width: 100%;
   height: 100px;
   background: #cedee7;
@@ -235,10 +265,6 @@ a.help {
 
   &__logo {
     max-width: 200px;
-  }
-
-  &__title {
-    margin: 0 15px;
   }
 
   &__status {
@@ -250,14 +276,18 @@ a.help {
     display: flex;
     margin: 0 0 0 auto;
     list-style-type: none;
+    user-select: none;
   }
 }
 
 .sidebar {
+  display: flex;
   height: calc(100vh - 100px);
-  border-right: 1px solid #dae5e5;
-  box-shadow: 5px 0 5px 0 #e1eaea;
+  border-right: mix(darken($light-gray, 2.5%), $primary, 99%);
+  box-shadow: 5px 0 5px 0 adjust-color($primary, $lightness: 70%, $saturation: -45%);
   flex-shrink: 1;
+  flex-direction: column;
+  justify-content: space-between;
   padding: 0 1rem;
   z-index: 100;
 
@@ -265,19 +295,34 @@ a.help {
     width: 20vw;
     max-width: 250px;
     padding: 0;
+    user-select: none;
     list-style: none;
 
     li {
       padding: .3rem .5rem;
     }
   }
+
+  a {
+    color: $primary;
+    text-decoration: none;
+
+    &:hover {
+      color: darken($primary, 15%);
+      text-decoration: none;
+    }
+  }
+}
+
+.info {
+  padding: 1rem .5rem;
 }
 
 .fullwidth-content {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  background-color: lighten(#dae5e5, 5%);
+  background-color: mix(darken($light-gray, 1%), $primary, 90%);
   flex-grow: 1;
   padding: 0 1rem;
   flex-wrap: wrap;
@@ -286,9 +331,9 @@ a.help {
 
 .content {
   height: calc(100vh - 100px);
-  background-color: #fefefe;
+  background-color: $light-gray;
   flex-grow: 1;
-  padding: 0 1rem;
+  padding: 0 1rem 0 2rem;
   z-index: 99;
 }
 
@@ -298,10 +343,10 @@ a.help {
     max-width: 90vw;
     margin: 1rem 0;
     padding: .5rem 1.35rem;
-    background-color: #fefefe;
-    border: 1px solid #dae5e5;
+    background-color: $light-gray;
+    border: 1px solid mix(darken($light-gray, 1%), $primary, 92.5%);
     border-radius: .5rem;
-    box-shadow: 0 0 .5rem 0 desaturate(darken(#dae5e5, 10%), 10%);
+    box-shadow: 0 0 .5rem adjust-color($primary, $lightness: 50%, $saturation: -50%);
   }
 
   &__form {
@@ -334,7 +379,8 @@ a.help {
 .console {
   position: relative;
   width: 100%;
-  background-color: #222;
+  max-height: calc(100vh - 100px - 5rem);
+  background-color: desaturate($primary, 75%);
   object-fit: contain;
   z-index: 100;
 
@@ -348,14 +394,17 @@ a.help {
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% - 2rem);
+    box-sizing: border-box;
+    width: 100%;
     padding: .5rem 1rem;
     text-align: center;
-    color: #fefefe;
+    color: $light-gray;
     z-index: 101;
   }
 
   &__loading {
+    font-size: .75rem;
+    padding: 0 .1rem;
     animation: 1750ms blink infinite;
 
     &:nth-child(1) {
@@ -371,22 +420,53 @@ a.help {
 }
 
 .images {
-  border: 2px dashed #dae5e5;
-  border-radius: .5rem;
-  background-color: #f8f9f9;
+  border: 2px dashed mix($light-gray, $primary, 70%);
+  border-radius: $base-border-radius * 2;
+  background-color: mix(darken($light-gray, 1%), $primary, 97.5%);
   margin: 1rem 0;
   max-width: 750px;
+
+  &__container {
+    display: flex;
+  }
+
+  &__list {
+    flex-grow: 1;
+    border: 1px solid mix($light-gray, $primary, 20%);
+    border-radius: $base-border-radius * 2;
+    margin: 1rem 1rem 1rem 0;
+    padding: 1.25rem 1rem;
+  }
+
+  &__item {
+    margin-top: .75rem;
+    padding: .5rem;
+
+    &:hover {
+      background-color: mix(darken($light-gray, 3%), $primary, 92.5%);
+    }
+
+    &[data-selected="1"] {
+      border: 2px solid mix($light-gray, $primary, 25%);
+      background-color: mix(darken($light-gray, 2%), $primary, 92.5%);
+    }
+  }
+
+  &__drop_container {
+    flex-grow: 5;
+  }
 
   &__drop {
     height: calc(100% - 4px);
     margin: 2px;
     padding: .25rem 1rem;
     text-align: center;
+    user-select: none;
   }
 
   &__active {
-    background-color: #eeefef;
-    border-color: darken(#dae5e5, 15%);
+    background-color: mix(darken($light-gray, 2%), $primary, 92.5%);
+    border-color: mix(darken($light-gray, 10%), $primary, 70%);
   }
 
   &__files {
