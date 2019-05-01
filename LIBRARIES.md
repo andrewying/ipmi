@@ -3,14 +3,24 @@
 ## Index of Libraries
 
 * [Go](#go)
+* [React.js](#react.js)
 * [Gin](#gin)
+* [Gorilla WebSocket](#gorilla-websocket)
 * [JOSE](#jose)
 * [Go-MySQL-Driver](#go-mysql-driver)
 * [periph](#periph)
 * [Serial](#serial)
 * [Viper](#viper)
 * [go-webpack](#go-webpack)
-* [Gorilla WebSocket](#gorilla-websocket)
+* [react-cookie](#react-cookie)
+* [React Dropzone](#react-dropzone)
+* [React Keydown](#react-keydown)
+* [React Live Clock](#react-live-clock)
+* [Redux](#redux)
+* [React Router](#react-router)
+* [React WebSocket](#react-websocket)
+* [Babel](#babel)
+* [HTML5 Boilerplate](#html5-boilerplate)
 
 ## Index of Licenses
 
@@ -50,6 +60,12 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+### React.js
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) Facebook, Inc. and its affiliates.
 
 ### Gin
 
@@ -141,6 +157,60 @@ Copyright (c) 2014 Steve Francia
 [MIT License (MIT)](#mit-license)
 
 Copyright (c) 2014 Manuel Martínez-Almeida
+
+### react-cookie
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) 2015 Benoit Tremblay
+
+### React Dropzone
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) 2018 Param Aggarwal
+
+### React Keydown
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) 2015 junk
+
+### React Live Clock
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) 2017 Pavlo Vozniuk
+
+### Redux
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) 2015-present Dan Abramov
+
+### React Router
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) React Training 2016-2018
+
+### React WebSocket
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) 2015 Pim Voeten
+
+### Babel
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) 2014-present Sebastian McKenzie and other contributors
+
+### HTML5 Boilerplate
+
+[MIT License (MIT)](#mit-license)
+
+Copyright (c) HTML5 Boilerplate
 
 ## Licenses
 
