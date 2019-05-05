@@ -135,7 +135,7 @@ class Login extends React.Component {
                             <a className="help" onClick={ this.launchHelp }>
                                 Need help generating the token? Click here.
                             </a>
-                            <input type="submit" className="btn btn-primary"
+                            <input type="submit" className="btn btn-primary mt-1 mb-1"
                                    onClick={ this.authenticate } readOnly={ true }
                                    disabled={ this.state.loginDisabled }
                                    value={ this.state.loginText } />
