@@ -24,6 +24,10 @@ import { faSpinner, faExclamationTriangle, faCheck } from "@fortawesome/free-sol
 
 function Images() {
     const [ errors, setErrors ] = useState([]);
+    const [ images, setImages ] = useState([
+        {name: "test.iso", file: "123456.iso"}
+    ]);
+    const [ selectedImage, selectImage ] = useState("");
     const [ files, setFiles ] = useState({});
 
     const statusIcon = status => {
@@ -53,7 +57,8 @@ function Images() {
     const uploadFiles = acceptedFiles => {
         acceptedFiles.map(file => {
             for (let existingFile in files) {
-                if (existingFile.file === file.name) {
+                if (existingFile.file === file.name
+                    && existingFile.status >= 5) {
                     return 2;
                 }
             }
@@ -100,6 +105,55 @@ function Images() {
         });
     };
 
+    const commitFiles = e => {
+        e.preventDefault();
+
+        let data = [];
+        for (let file in files) {
+            data.push({
+                file: file.uploadedFile,
+                name: file.file,
+                commit: file.status === 10
+            });
+        }
+
+        fetch("/api/images", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({ files: data })
+        })
+            .then(res => res.json())
+            .then(res => {
+                if (res.code === 200) {
+                    setErrors([]);
+                    setFiles({});
+                    setImages(res.images);
+                    return;
+                }
+
+                setErrors([ res.error ]);
+            });
+    };
+
+    const loadImage = () => {
+        const pattern = /^[0-9A-F]{64}.iso$/;
+        if (!pattern.test(selectedImage)) {
+            alert("Invalid image file name supplied.");
+            return;
+        }
+
+        fetch("/api/images/" + selectedImage + "/load", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+        });
+    };
+
     const {
         getRootProps,
         getInputProps,
@@ -111,20 +165,35 @@ function Images() {
     });
 
     return (
-        <div>
-            { errors.length !== 0 ? <div className="alert alert-danger">
-                <p><strong>The following errors occurred while uploading the image files:</strong></p>
-                <ul>
-                    { errors.map(error => <li>{ error }</li>) }
-                </ul>
-            </div> : "" }
-            <div className={ isDragActive ? "images images__active" : "images" }>
-                <div { ...getRootProps({ className: "images__drop" }) }>
-                    <input { ...getInputProps({ name: "images" }) } />
-                    { Object.keys(files).length !== 0 ? filesList(files) : <h3>Select Files</h3> }
+        <div className="images__container">
+            { images.length !== 0 ? <div className="images__list">
+                <strong>Uploaded Images</strong>
+                <div>
+                    { images.map(image =>
+                    <div className="images__item" data-selected={ image.file === selectedImage
+                        ? "1" : "0" } data-value={ image.file } onClick={ () =>
+                        selectImage(image.file) }>
+                        { image.name }
+                    </div>
+                    ) }
                 </div>
+                <button className="btn btn-primary mt-2">Load</button>
+            </div> : "" }
+            <div className="images__drop_container">
+                { errors.length !== 0 ? <div className="alert alert-danger">
+                    <p><strong>The following errors occurred while uploading the image files:</strong></p>
+                    <ul>
+                        { errors.map(error => <li>{ error }</li>) }
+                    </ul>
+                </div> : "" }
+                <div className={ isDragActive ? "images images__active" : "images" }>
+                    <div { ...getRootProps({ className: "images__drop" }) }>
+                        <input { ...getInputProps({ name: "images" }) } />
+                        { Object.keys(files).length !== 0 ? filesList(files) : <h3>Select Files</h3> }
+                    </div>
+                </div>
+                <button className="btn btn-primary" onClick={ commitFiles }>Upload</button>
             </div>
-            <button className="btn btn-primary">Upload</button>
         </div>
     )
 }

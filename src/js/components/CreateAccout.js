@@ -15,17 +15,19 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-let initialState = {
-    hostname: '',
-    iso: undefined,
-    email: '',
-    accessLevel: 0,
-    accounts: []
-};
+import React, { useState } from "react";
 
-export default function app(state = initialState, action) {
-    switch (action.type) {
-        default:
-            return state;
-    }
+export default function CreateAccount() {
+    const [ email, setEmail ] = useState('');
+    const [ publicKey, setPublicKey ] = useState('');
+    const [ accessLevel, setAccessLevel ] = useState(0);
+
+    return (
+        <div>
+            <h2>Create Account</h2>
+            <form className="horizontal-form">
+
+            </form>
+        </div>
+    )
 }

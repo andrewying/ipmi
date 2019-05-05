@@ -22,11 +22,12 @@ import Logo from "../../images/logo.png";
 import Clock from "react-live-clock";
 
 class Header extends React.Component {
+    version = require('../../../package.json').version;
+
     render() {
         return (
             <header className="header">
-                <img className="header__logo" src={ Logo } alt="Cam FM"/>
-                <h1 className="header__title">Adsisto <small>v1.0.0</small></h1>
+                <img className="header__logo" src={ Logo } alt="Adsisto"/>
                 <div className="header__status">
                     <strong>Hostname:</strong><br />
                     <strong>ISO file:</strong>&nbsp;

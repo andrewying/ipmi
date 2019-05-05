@@ -53,13 +53,13 @@ class Console extends React.Component {
 
     @keydown(ALL_KEYS)
     handleKeys(e) {
-        if (this.prohibitedKeys.contains(e.key)) {
+        if (this.prohibitedKeys.includes(e.key)) {
             alert("Special keys are not currently supported!");
             return;
         }
 
         if (!this.state.ws) {
-            alert("Connecting to remote Websocket server... Please try again.");
+            alert("Connection to remote Websocket server in progress... Please try again.");
             return;
         }
 
@@ -92,9 +92,9 @@ class Console extends React.Component {
                     { this.state.connected ? "" : <div className="console__overlay">
                         <h2>Connecting to Remote Machine</h2>
                         <h2 className="console__loading_container">
-                            <span className="console__loading">.</span>&nbsp;
-                            <span className="console__loading">.</span>&nbsp;
-                            <span className="console__loading">.</span>&nbsp;
+                            <span className="console__loading">●</span>
+                            <span className="console__loading">●</span>
+                            <span className="console__loading">●</span>
                         </h2>
                     </div> }
                 </div>
