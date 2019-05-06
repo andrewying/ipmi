@@ -17,34 +17,17 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+const path = require('path');
+const git = require('nodegit');
+require('colors');
 const program = require('commander');
-const { exec } = require('child_process');
-const colors = require('colors');
+const assetCompiler = require('./assets');
+const Server = require('./server');
 
-program
-    .version(require('../package.json').version)
-    .option('-e, --env [env]', 'set build environment', 'development')
-    .parse(process.argv);
+const version = require('../package.json').version;
+let commit;
 
-process.env.NODE_ENV = program.env;
-const production = program.env === 'production';
-
-const Webpack = require('webpack');
-const config = require('../webpack.config');
-
-let lastHash = null;
-let compiler;
 let server;
-try {
-    compiler = Webpack(config);
-} catch (err) {
-    if (err.name === "WebpackOptionsValidationError") {
-        console.error(err.message);
-        process.exit(1);
-    }
-
-    throw err;
-}
 
 process.on('SIGTERM', function () {
     console.log('Gracefully shutting down...'.green);
@@ -53,77 +36,29 @@ process.on('SIGTERM', function () {
     process.exit(0);
 });
 
-function compilerCallback(err, stats) {
-    if (!config.watch || err) {
-        compiler.purgeInputFileSystem();
-    }
+program
+    .version(version)
+    .option('-e, --env [env]', 'set build environment', 'development')
+    .parse(process.argv);
 
-    if (err) {
-        lastHash = null;
-        console.error('[WEBPACK]'.bgBlue.white + ` ${ err.stack || err }`);
+git.Repository.open(path.resolve(__dirname, '../'))
+        .then(function (repo) {
+            repo.getHeadCommit()
+                .then(function (res) {
+                    commit = res.id().tostrS();
 
-        if (server) server.kill();
-        process.exit(1);
-    }
-
-    if (stats.hash !== lastHash) {
-        lastHash = stats.hash;
-        if (stats.compilation && stats.compilation.errors.length !== 0) {
-            const errors = stats.compilation.errors;
-            if (errors[0].name === "EntryModuleNotFoundError") {
-                console.error("\n" + "[WEBPACK]".bgBlue.white +
-                    " Insufficient number of arguments or no entry found.".red);
-            }
-        }
-
-        const statsString = stats.toString({
-            _env: process.env.NODE_ENV,
-            cached: false,
-            cachedAssets: false,
-            children: false,
-            chunks: false,
-            colors: true,
-            exclude: ["node_modules", "bower_components", "components"]
-        });
-        if (statsString) console.log('[WEBPACK]'.bgBlue.white + ` ${ statsString }\n`);
-    }
-}
-
-function runWatcher() {
-    const path = require("path");
-    const opn = require('opn');
-
-    compiler.watch(config.watch, compilerCallback);
-    console.log('[WEBPACK]'.bgBlue.white + ' Asset builder started...');
-
-    server = exec('go run . -dev',{
-        cwd: path.resolve(__dirname, '../')
-    }, (error, stdout, stderr) => {
-        if (error) {
-            console.error('[SERVER]'.bgGreen + ` ${error}`.red);
+                    assetCompiler(program.env, function () {
+                        server = Server.run();
+                    });
+                })
+                .catch(function (error) {
+                    console.error('Unable to get current commit. '.bold.red);
+                    console.error(error.toString());
+                    process.exit(1);
+                });
+        })
+        .catch(function (error) {
+            console.error('Local directory is not a valid Git repository. '.bold.red);
+            console.error(error.toString());
             process.exit(1);
-        }
-
-        console.log('[SERVER]'.bgGreen + ` ${stdout}`);
-        console.log('[SERVER]'.bgGreen + ` ${stderr}`.red);
-    });
-    console.log('[SERVER]'.bgGreen + ' Web server started');
-    setTimeout(() => opn('http://localhost:8080'), 5000);
-
-    server.on('close', (code) => {
-        console.log('[SERVER]'.bgGreen + ` Exited with code ${code}`.bold);
-        process.exit(1);
-    });
-}
-
-compiler.run((err, stats) => {
-    if (compiler.close) {
-        compiler.close(err2 => {
-            compilerCallback(err || err2, stats);
         });
-    } else {
-        compilerCallback(err, stats);
-    }
-
-    if (!production) runWatcher();
-});
