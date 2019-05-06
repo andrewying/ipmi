@@ -42,8 +42,10 @@ import (
 )
 
 var (
+	Version    string
+	Build      string
 	assetDirs  = []string{"css", "images", "js"}
-	isDev      bool
+	isDev      *bool
 	appName    string
 	domain     string
 	cookieName string
@@ -55,8 +57,13 @@ var (
 )
 
 func main() {
-	isDev = *flag.Bool("dev", false, "development mode")
+	isDev = flag.Bool("dev", false, "development mode")
 	configPath := flag.String("config", "", "path to config file")
+	privateKey := flag.String("key", "", "path to private key")
+	certificate := flag.String("certs", "", "path to certificate chain")
+
+	flag.Parse()
+
 	loadConfig(*configPath)
 
 	file, err := os.OpenFile(
@@ -80,15 +87,18 @@ func main() {
 	gin.DisableConsoleColor()
 	gin.DefaultWriter = io.MultiWriter(filter)
 
+	r := gin.Default()
+	if !*isDev {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	var server *http.Server
-	if isDev {
+	if *isDev {
 		server = &http.Server{
-			Addr: ":8080",
+			Addr:    ":8080",
+			Handler: r,
 		}
 	} else {
-		privateKey := flag.String("key", "", "path to private key")
-		certificate := flag.String("certs", "", "path to certificate chain")
-
 		if *privateKey == "" || *certificate == "" {
 			log.Fatalln("[ERROR] Failed to start web server: SSL certificate" +
 				" and/or private key are missing")
@@ -105,15 +115,12 @@ func main() {
 			TLSConfig: &tls.Config{
 				Certificates: []tls.Certificate{cert},
 			},
+			Handler: r,
 		}
+		log.Println("[INFO] Configured web server for SSL")
 	}
 
-	r := gin.Default()
-	if !isDev {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	loadAssets(r, isDev)
+	loadAssets(r, *isDev)
 
 	r.GET("/", HomeRenderer)
 	authRoutes(r)
@@ -122,14 +129,15 @@ func main() {
 		Device: config.GetString("usb.hid_device"),
 	}
 	r.GET("api/keystrokes", s.WebsocketHandler)
-	images := &ImagesUploader{}
-	r.POST("api/images", images.UploadHandler)
 
-	server.Handler = r
+	images := &ImagesUploader{
+		UploadDir: config.GetString("images.upload_dir"),
+	}
+	r.POST("api/images", images.UploadHandler)
 
 	go func() {
 		var err error
-		if isDev {
+		if *isDev {
 			err = server.ListenAndServe()
 		} else {
 			err = server.ListenAndServeTLS("", "")
