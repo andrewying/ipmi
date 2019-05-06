@@ -42,6 +42,32 @@ function run() {
     return server;
 }
 
+function build(variables) {
+    exec(`go build . ${getArgs(variables)}`,{
+        cwd: path.resolve(__dirname, '../')
+    }, (error, stdout, stderr) => {
+        if (error) {
+            console.error('[SERVER]'.bgGreen + ` ${error}`.red);
+            process.exit(1);
+        }
+
+        console.log('[SERVER]'.bgGreen + ` ${stdout}`);
+        console.log('[SERVER]'.bgGreen + ` ${stderr}`.red);
+    });
+
+    console.log('[SERVER]'.bgGreen + ' Successfully built server binary');
+}
+
+function getArgs(arguments) {
+    let array = [];
+    for (let [ key, value ] of arguments) {
+        array.push(`-X github.com/adsisto/adsisto.${key}=${value}`);
+    }
+
+    return array.concat(' ');
+}
+
 module.exports = {
-    run: run
+    run: run,
+    build: build
 };
