@@ -4,11 +4,13 @@ go 1.12
 
 require (
 	github.com/SermoDigital/jose v0.9.2-0.20180104203859-803625baeddc
+	github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713 // indirect
 	github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-webpack/webpack v1.4.2
 	github.com/golang/protobuf v1.3.1 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.0
 	github.com/hashicorp/logutils v1.0.0
 	github.com/json-iterator/go v1.1.6 // indirect
