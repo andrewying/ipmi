@@ -82,18 +82,19 @@ func main() {
 	log.SetOutput(filter)
 
 	app := iris.Default()
+	app.Logger().SetLevel(config.GetString("app.log.level"))
 	app.Logger().SetOutput(filter)
 
-	var server iris.Runner
+	var runner iris.Runner
 	if *isDev {
-		server = iris.Addr(":8080")
+		runner = iris.Addr(":8080")
 	} else {
 		if *privateKey == "" || *certificate == "" {
 			log.Fatalln("[ERROR] Failed to start web server: SSL certificate" +
 				" and/or private key are missing")
 		}
 
-		server = iris.TLS(":443", *certificate, *privateKey)
+		runner = iris.TLS(":443", *certificate, *privateKey)
 		log.Println("[INFO] Configured web server for SSL")
 	}
 
@@ -136,7 +137,7 @@ func main() {
 		}
 	}()
 
-	app.Run(server, iris.WithoutInterruptHandler)
+	app.Run(runner, iris.WithoutInterruptHandler)
 }
 
 func loadConfig(path string) {
