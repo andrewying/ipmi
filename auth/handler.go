@@ -20,37 +20,61 @@ package auth
 import (
 	"fmt"
 	"github.com/SermoDigital/jose/jws"
-	"github.com/gin-gonic/gin"
+	"github.com/kataras/iris"
+	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"regexp"
 )
 
 type authRequest struct {
-	Token string `json:"token" binding:"required"`
+	Token string `json:"token" validate:"required"`
 }
 
-var HeaderPattern = `Bearer ([A-Za-z0-9\-\._~\+\/]+=*)$`
+var (
+	validate      = validator.New()
+	HeaderPattern = `Bearer ([A-Za-z0-9\-\._~\+\/]+=*)$`
+)
 
-func (m *JWTMiddleware) AuthHandler(c *gin.Context) {
+func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 	r := &authRequest{}
-	err := c.ShouldBindJSON(r)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+	if err := c.ReadJSON(r); err != nil {
+		c.StatusCode(http.StatusBadRequest)
+		c.JSON(iris.Map{
 			"code":    http.StatusBadRequest,
 			"message": "invalid authentication request",
 		})
+		return
+	}
+	if err := validate.Struct(r); err != nil {
+		c.StatusCode(http.StatusBadRequest)
+		c.JSON(iris.Map{
+			"code":    http.StatusBadRequest,
+			"message": "invalid authentication request",
+		})
+		return
+	}
+
+	if err := c.ReadJSON(r); err != nil {
+		c.StatusCode(http.StatusBadRequest)
+		c.JSON(iris.Map{
+			"code":    http.StatusBadRequest,
+			"message": "invalid authentication request",
+		})
+		return
 	}
 
 	auth, err := m.ValidateAuthnRequest(r.Token)
 	if err != nil {
 		switch err {
 		case ErrInvalidToken:
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.StatusCode(http.StatusBadRequest)
+			c.JSON(iris.Map{
 				"code":    http.StatusBadRequest,
 				"message": "invalid JWT",
 			})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{
+			c.StatusCode(http.StatusInternalServerError)
+			c.JSON(iris.Map{
 				"code":    http.StatusInternalServerError,
 				"message": fmt.Sprint(err),
 			})
@@ -60,7 +84,8 @@ func (m *JWTMiddleware) AuthHandler(c *gin.Context) {
 	}
 
 	if !auth {
-		c.JSON(http.StatusUnauthorized, gin.H{
+		c.StatusCode(http.StatusUnauthorized)
+		c.JSON(iris.Map{
 			"code":    http.StatusUnauthorized,
 			"message": "unauthenticated",
 		})
@@ -69,26 +94,26 @@ func (m *JWTMiddleware) AuthHandler(c *gin.Context) {
 
 	session, err := m.GetSessionToken()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.StatusCode(http.StatusInternalServerError)
+		c.JSON(iris.Map{
 			"code":    http.StatusInternalServerError,
 			"message": fmt.Sprint(err),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(iris.Map{
 		"token": session,
 	})
 }
 
-func (m *JWTMiddleware) Authenticated(c *gin.Context) {
-	headers := c.Request.Header
-	t := headers.Get("Authorization")
+func (m *JWTMiddleware) Authenticated(c iris.Context) {
+	t := c.GetHeader("Authorization")
 
-	cookie, _ := c.Request.Cookie(m.CookieName)
+	cookie := c.GetCookie(m.CookieName)
 
-	if t == "" && cookie.String() == "" {
-		c.Redirect(http.StatusTemporaryRedirect, "/auth/login")
+	if t == "" && cookie == "" {
+		c.Redirect("/auth/login", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -104,7 +129,7 @@ func (m *JWTMiddleware) Authenticated(c *gin.Context) {
 
 		jwt = match[0]
 	} else {
-		jwt = cookie.String()
+		jwt = cookie
 	}
 
 	token, err := jws.ParseJWT([]byte(jwt))
@@ -125,4 +150,6 @@ func (m *JWTMiddleware) Authenticated(c *gin.Context) {
 		m.Unauthorised(http.StatusForbidden, c)
 		return
 	}
+
+	c.Next()
 }

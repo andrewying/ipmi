@@ -22,7 +22,7 @@ import (
 	"github.com/SermoDigital/jose/crypto"
 	"github.com/SermoDigital/jose/jws"
 	"github.com/SermoDigital/jose/jwt"
-	"github.com/gin-gonic/gin"
+	"github.com/kataras/iris"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -50,7 +50,7 @@ type JWTMiddleware struct {
 	AuthnTimeout   time.Duration
 	SessionTimeout time.Duration
 	Leeway         time.Duration
-	Unauthorised   func(int, *gin.Context)
+	Unauthorised   func(int, iris.Context)
 }
 
 type AuthorisedKeysInterface interface {
@@ -230,12 +230,6 @@ func (m *JWTMiddleware) ValidateSessionToken(t jwt.JWT) (bool, error) {
 	}
 
 	return true, nil
-}
-
-func (m *JWTMiddleware) AuthenticatedFunc() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		m.Authenticated(c)
-	}
 }
 
 func (m *JWTMiddleware) parsePublicKey(k []byte) (interface{}, error) {

@@ -22,7 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/adsisto/adsisto/webrtc/gst"
-	"github.com/gin-gonic/gin"
+	"github.com/kataras/iris"
 	"github.com/pion/webrtc/v2"
 	"io/ioutil"
 	"log"
@@ -87,8 +87,8 @@ func (c *Config) StreamStart() (string, error) {
 	return base64.StdEncoding.EncodeToString(encoded), nil
 }
 
-func (c *Config) SdpHandler(ctx *gin.Context) {
-	body, _ := ioutil.ReadAll(ctx.Request.Body)
+func (c *Config) SdpHandler(ctx iris.Context) {
+	body, _ := ioutil.ReadAll(ctx.Request().Body)
 	obj, err := base64.StdEncoding.DecodeString(string(body))
 	if err != nil {
 		log.Println(err)

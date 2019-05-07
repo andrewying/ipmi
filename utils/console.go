@@ -40,7 +40,7 @@ var (
 	ErrLoginInvalid           = errors.New("username and/or password is incorrect")
 )
 
-// Create a new serial console session
+// NewConsole creates a new serial console session
 func NewConsole(device string) (*SerialConsole, error) {
 	config := &serial.Config{
 		Name:        device,
@@ -60,7 +60,7 @@ func NewConsole(device string) (*SerialConsole, error) {
 	}, nil
 }
 
-// Checks that the console session is authenticated
+// Authenticate checks that the console session is authenticated
 func (c *SerialConsole) Authenticate(username string, password string) error {
 	var err error
 
@@ -132,7 +132,7 @@ func (c *SerialConsole) Authenticate(username string, password string) error {
 	return nil
 }
 
-// Write to serial console
+// Write writes to serial console
 func (c *SerialConsole) Write(s string) error {
 	if !c.Authenticated {
 		return ErrConsoleUnauthenticated
@@ -146,7 +146,7 @@ func (c *SerialConsole) Write(s string) error {
 	return nil
 }
 
-// Close serial console session
+// Close closes the serial console session
 func (c *SerialConsole) Close() error {
 	return c.connection.Close()
 }

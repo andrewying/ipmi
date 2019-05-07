@@ -2,9 +2,10 @@ app:
   name: Acme Ltd
   domain: acme.dev
   cookie_name: ipmi_auth_token
+  data_dir: ./data/
   log:
     level: debug
-    file: ./app.log
+    file: app.log
 usb:
   # Path for the emulated USB HID
   hid_path: /dev/hid0
@@ -17,13 +18,16 @@ gpio:
   outputs:
     - 27
     - 22
+images:
+  upload_dir: ./resources/images/
 keys:
   store: mysql
   store_config:
-    dsn:
-    raw_query:
-  public: keys/public.pem
-  private: keys/private.pem
+    dsn: ipmi:password@localhost/ipmi
+    raw_query: SELECT keys FROM keys_store WHERE username = ?
+  server:
+    public: keys/public.pem
+    private: keys/private.pem
 jwt:
   algorithm: ES512
   authn_timeout: 1

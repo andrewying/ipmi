@@ -25,8 +25,10 @@ import (
 	"time"
 )
 
-type Config struct {
-	InputPins  []string
+type GPIOConfig struct {
+	// InputPins defines the name of the pins used to receive inputs
+	InputPins []string
+	// OutputPins defines the name of the pins used to send outputs
 	OutputPins []string
 }
 
@@ -34,7 +36,8 @@ var (
 	ErrPinUndefined = errors.New("GPIO pin not defined in configuration")
 )
 
-func (c *Config) SetupPins() []error {
+// SetupPins initiates the host and set all the output pins to the low state
+func (c *GPIOConfig) SetupPins() []error {
 	var ers []error
 
 	if _, err := host.Init(); err != nil {
@@ -52,7 +55,7 @@ func (c *Config) SetupPins() []error {
 	return ers
 }
 
-func (c *Config) TogglePin(pin string) error {
+func (c *GPIOConfig) TogglePin(pin string) error {
 	found := false
 
 	for _, p := range c.OutputPins {

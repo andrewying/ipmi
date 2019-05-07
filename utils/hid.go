@@ -19,9 +19,10 @@ package utils
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
+	"github.com/kataras/iris/context"
+	"github.com/kataras/iris/websocket"
 	"log"
 	"os"
 	"strings"
@@ -39,24 +40,24 @@ type HidStreamMessage struct {
 	Meta  bool
 }
 
-func (s *HidStream) WebsocketHandler(c *gin.Context) {
-	upgrader := websocket.Upgrader{}
-	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		panic(err)
-	}
+func (s *HidStream) WebsocketHandler() context.Handler {
+	ws := websocket.New(websocket.Config{})
+	ws.OnConnection(s.receiveInput)
 
+	return ws.Handler()
+}
+
+func (s *HidStream) receiveInput(c websocket.Connection) {
 	file, err := os.Create(s.Device)
 	if err != nil {
 		panic(err)
 	}
-
-	defer ws.Close()
 	defer file.Close()
 
-	for {
-		message := HidStreamMessage{}
-		err := ws.ReadJSON(message)
+	message := HidStreamMessage{}
+
+	c.OnMessage(func(data []byte) {
+		err := json.Unmarshal(data, message)
 		if err != nil {
 			log.Print(err)
 		}
@@ -73,5 +74,5 @@ func (s *HidStream) WebsocketHandler(c *gin.Context) {
 				log.Print(err)
 			}
 		}
-	}
+	})
 }

@@ -20,7 +20,7 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/kataras/iris"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -31,10 +31,11 @@ type ImagesUploader struct {
 	UploadDir string
 }
 
-func (h *ImagesUploader) UploadHandler(c *gin.Context) {
-	header, err := c.FormFile("file")
+func (h *ImagesUploader) UploadHandler(c iris.Context) {
+	file, header, err := c.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.StatusCode(http.StatusBadRequest)
+		c.JSON(iris.Map{
 			"error": fmt.Sprintf("Unable to process file: %s", err),
 		})
 		return
@@ -43,23 +44,17 @@ func (h *ImagesUploader) UploadHandler(c *gin.Context) {
 	log.Printf("[INFO] Processing uploaded file %s\n", header.Filename)
 
 	if filepath.Ext(header.Filename) != "iso" {
-		c.JSON(http.StatusNotAcceptable, gin.H{
+		c.StatusCode(http.StatusNotAcceptable)
+		c.JSON(iris.Map{
 			"error": "File uploaded must be a .iso file",
-		})
-		return
-	}
-
-	file, err := header.Open()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("Unable to process file: %s", err),
 		})
 		return
 	}
 
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.StatusCode(http.StatusBadRequest)
+		c.JSON(iris.Map{
 			"error": fmt.Sprintf("Unable to process file: %s", err),
 		})
 		return
@@ -68,7 +63,8 @@ func (h *ImagesUploader) UploadHandler(c *gin.Context) {
 	hash := sha256.New()
 	_, err = hash.Write(content)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.StatusCode(http.StatusInternalServerError)
+		c.JSON(iris.Map{
 			"error": "Unable to save file to server",
 		})
 		return
@@ -81,13 +77,14 @@ func (h *ImagesUploader) UploadHandler(c *gin.Context) {
 	)
 	if err != nil {
 		log.Printf("[ERROR] Unable to save uploaded image file: %s\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.StatusCode(http.StatusInternalServerError)
+		c.JSON(iris.Map{
 			"error": "Unable to save file to server",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(iris.Map{
 		"file": fmt.Sprintf("%s.iso", hash.Sum(nil)),
 	})
 }

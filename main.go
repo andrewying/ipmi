@@ -19,20 +19,16 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
 	"github.com/adsisto/adsisto/auth"
 	"github.com/adsisto/adsisto/utils"
-	"github.com/gin-gonic/gin"
 	"github.com/go-webpack/webpack"
 	"github.com/hashicorp/logutils"
+	"github.com/kataras/iris"
 	"github.com/spf13/viper"
-	"html/template"
-	"io"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -42,8 +38,8 @@ import (
 )
 
 var (
-	Version    string
-	Build      string
+	version    string
+	build      string
 	assetDirs  = []string{"css", "images", "js"}
 	isDev      *bool
 	appName    string
@@ -67,7 +63,7 @@ func main() {
 	loadConfig(*configPath)
 
 	file, err := os.OpenFile(
-		config.GetString("app.log.file"),
+		config.GetString("app.data_dir")+config.GetString("app.log.file"),
 		os.O_RDWR|os.O_CREATE|os.O_APPEND,
 		0666,
 	)
@@ -84,84 +80,63 @@ func main() {
 		Writer: file,
 	}
 	log.SetOutput(filter)
-	gin.DisableConsoleColor()
-	gin.DefaultWriter = io.MultiWriter(filter)
 
-	r := gin.Default()
-	if !*isDev {
-		gin.SetMode(gin.ReleaseMode)
-	}
+	app := iris.Default()
+	app.Logger().SetOutput(filter)
 
-	var server *http.Server
+	var server iris.Runner
 	if *isDev {
-		server = &http.Server{
-			Addr:    ":8080",
-			Handler: r,
-		}
+		server = iris.Addr(":8080")
 	} else {
 		if *privateKey == "" || *certificate == "" {
 			log.Fatalln("[ERROR] Failed to start web server: SSL certificate" +
 				" and/or private key are missing")
 		}
 
-		cert, err := tls.LoadX509KeyPair(*certificate, *privateKey)
-		if err != nil {
-			log.Printf("[ERROR] Unable to parse X509 key pair: %s\n", err)
-			log.Fatalln("[ERROR] Failed to start web server")
-		}
-
-		server = &http.Server{
-			Addr: ":https",
-			TLSConfig: &tls.Config{
-				Certificates: []tls.Certificate{cert},
-			},
-			Handler: r,
-		}
+		server = iris.TLS(":443", *certificate, *privateKey)
 		log.Println("[INFO] Configured web server for SSL")
 	}
 
-	loadAssets(r, *isDev)
+	loadAssets(app, *isDev)
 
-	r.GET("/", HomeRenderer)
-	authRoutes(r)
+	app.Get("/", HomeRenderer)
+	authRoutes(app)
 
 	s := &utils.HidStream{
 		Device: config.GetString("usb.hid_device"),
 	}
-	r.GET("api/keystrokes", s.WebsocketHandler)
+	app.Get("api/keystrokes", s.WebsocketHandler())
 
 	images := &ImagesUploader{
 		UploadDir: config.GetString("images.upload_dir"),
 	}
-	r.POST("api/images", images.UploadHandler)
+	app.Post("api/images", images.UploadHandler)
 
 	go func() {
-		var err error
-		if *isDev {
-			err = server.ListenAndServe()
-		} else {
-			err = server.ListenAndServeTLS("", "")
-		}
+		ch := make(chan os.Signal, 1)
+		signal.Notify(ch,
+			os.Interrupt,
+			syscall.SIGINT,
+			os.Kill,
+			syscall.SIGKILL,
+			syscall.SIGTERM,
+		)
+		select {
+		case <-ch:
+			log.Println("[INFO] Gracefully shutdown server")
 
-		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("[ERROR] Error when starting server: %s\n", err)
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+			defer cancel()
+			if err := app.Shutdown(ctx); err != nil {
+				log.Fatalf("[ERROR] Error during server shutdown: %s\n", err)
+			}
+
+			<-ctx.Done()
+			log.Println("[INFO] Server exited.")
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	<-quit
-	log.Println("[INFO] Gracefully shutdown server")
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("[ERROR] Error during server shutdown: %s\n", err)
-	}
-
-	<-ctx.Done()
-	log.Println("[INFO] Server exiting")
+	app.Run(server, iris.WithoutInterruptHandler)
 }
 
 func loadConfig(path string) {
@@ -184,7 +159,7 @@ func loadConfig(path string) {
 	cookieName = config.GetString("app.cookie_name")
 }
 
-func authRoutes(r *gin.Engine) {
+func authRoutes(r *iris.Application) {
 	storeConfig := config.GetStringMapString("keys.store_config")
 	parsedStoreConfig := make(map[string]string)
 
@@ -227,27 +202,30 @@ func authRoutes(r *gin.Engine) {
 		log.Panic(err)
 	}
 
-	r.GET("auth/login", LoginRenderer)
-	r.POST("auth/login", m.AuthHandler)
+	r.Get("auth/login", LoginRenderer)
+	r.Post("auth/login", m.AuthHandler)
 }
 
-func loadAssets(r *gin.Engine, dev bool) *gin.Engine {
+func loadAssets(r *iris.Application, dev bool) *iris.Application {
 	webpack.FsPath = "./public"
 	webpack.WebPath = "/"
 	webpack.Plugin = "manifest"
 	webpack.Init(dev)
 
-	r.SetFuncMap(template.FuncMap{
-		"asset": webpack.AssetHelper,
-	})
-
 	for i := 0; i < len(assetDirs); i++ {
-		r.Static(
+		r.StaticWeb(
 			fmt.Sprintf("/%s", assetDirs[i]),
 			fmt.Sprintf("./public/%s", assetDirs[i]),
 		)
 	}
-	r.LoadHTMLGlob("./src/*.tmpl")
+
+	tmpl := iris.HTML("./src", ".tmpl")
+	if dev {
+		tmpl.Reload(true)
+	}
+	tmpl.AddFunc("asset", webpack.AssetHelper)
+
+	r.RegisterView(tmpl)
 
 	return r
 }
