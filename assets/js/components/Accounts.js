@@ -69,8 +69,7 @@ function Accounts(props) {
 
 const mapStateToProps = state => {
     return {
-        email: state.email,
-        accounts: state.accounts
+        email: state.email
     }
 };
 

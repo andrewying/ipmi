@@ -18,7 +18,7 @@
 const Webpack = require('webpack');
 require('colors');
 
-const config = require('../webpack.config');
+const config = require('./webpack.config');
 
 let compiler;
 let server;

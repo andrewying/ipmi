@@ -220,7 +220,7 @@ func loadAssets(r *iris.Application, dev bool) *iris.Application {
 		)
 	}
 
-	tmpl := iris.HTML("./src", ".tmpl")
+	tmpl := iris.HTML("./assets", ".tmpl")
 	if dev {
 		tmpl.Reload(true)
 	}

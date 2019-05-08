@@ -15,16 +15,22 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { RECEIVE_STATE } from "../actions";
+
 let initialState = {
     hostname: '',
     iso: undefined,
     email: '',
     accessLevel: 0,
-    accounts: []
+    uuid: ''
 };
 
 export default function app(state = initialState, action) {
     switch (action.type) {
+        case RECEIVE_STATE:
+            return Object.assign({
+
+            }, state);
         default:
             return state;
     }

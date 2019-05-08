@@ -26,13 +26,13 @@ const production = process.env.NODE_ENV === "production";
 
 let config = {
     mode: production ? "production" : "development",
-    context: path.resolve(__dirname, "src"),
+    context: path.resolve(__dirname, "../assets"),
     entry: {
         app: "./index.js",
         login: "./login.js",
     },
     output: {
-        path: path.join(__dirname, "public"),
+        path: path.join(__dirname, "../public"),
         filename: production ? "js/[name]-[chunkhash].js" : "js/[name].js",
         chunkFilename: production ? "js/[name]-[chunkhash].js" : "js/[name].js",
     },
@@ -40,7 +40,16 @@ let config = {
         rules: [
             {
                 test: /\.jsx?$/,
-                use: "babel-loader",
+                use: {
+                    loader: "babel-loader",
+                    options: {
+                        "presets": ["@babel/preset-env", "@babel/preset-react"],
+                        "plugins": [
+                            ["@babel/plugin-proposal-decorators", { "legacy": true }],
+                            "@babel/plugin-proposal-class-properties"
+                        ]
+                    }
+                },
                 exclude: /node_modules/
             },
             {
@@ -62,7 +71,14 @@ let config = {
                         }
                     },
                     "css-loader",
-                    "postcss-loader",
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            config: {
+                                path: __dirname,
+                            }
+                        }
+                    },
                     "sass-loader"
                 ]
             },
@@ -71,7 +87,7 @@ let config = {
     resolve: {
         extensions: ['.js', '.jsx', '.css', '.scss'],
         alias: {
-            "~": path.resolve(__dirname, "node_modules")
+            "~": path.resolve(__dirname, "../node_modules")
         }
     },
     plugins: [
