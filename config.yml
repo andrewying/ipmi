@@ -24,7 +24,10 @@ keys:
   store: mysql
   store_config:
     dsn: ipmi:password@localhost/ipmi
-    raw_query: SELECT keys FROM keys_store WHERE username = ?
+    select_query: SELECT key FROM keys_store WHERE identity = ?
+    index_query: SELECT identity, key FROM keys_store
+    update_query: UPDATE keys_store SET key = ? WHERE identity = ?
+    delete_query: DELETE FROM keys_store WHERE identity = ?
   server:
     public: keys/public.pem
     private: keys/private.pem

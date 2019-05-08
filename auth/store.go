@@ -28,9 +28,15 @@ import (
 
 type MysqlKeyStore struct {
 	AuthorisedKeysInterface
-	Dsn      string
-	RawQuery string
-	query    *sql.Stmt
+	Dsn          string
+	SelectQuery  string
+	pSelectQuery *sql.Stmt
+	IndexQuery   string
+	pIndexQuery  *sql.Stmt
+	UpdateQuery  string
+	pUpdateQuery *sql.Stmt
+	DeleteQuery  string
+	pDeleteQuery *sql.Stmt
 }
 
 var (
@@ -56,17 +62,17 @@ func (m *MysqlKeyStore) Get(identity ...interface{}) (string, error) {
 		return "", err
 	}
 
-	if m.query == nil {
-		stmt, err := db.Prepare(m.RawQuery)
+	if m.pSelectQuery == nil {
+		stmt, err := db.Prepare(m.SelectQuery)
 		if err != nil {
 			log.Printf("[ERROR] Failed to prepare SQL query: %s\n", err)
 			return "", err
 		}
 
-		m.query = stmt
+		m.pSelectQuery = stmt
 	}
 
-	rows, err := m.query.Query(identity)
+	rows, err := m.pSelectQuery.Query(identity)
 	if err != nil {
 		log.Printf("[ERROR] Failed to execute SQL query: %s\n", err)
 		return "", err
@@ -85,4 +91,116 @@ func (m *MysqlKeyStore) Get(identity ...interface{}) (string, error) {
 	}
 
 	return key, nil
+}
+
+func (m *MysqlKeyStore) GetAll() (map[string]string, error) {
+	db, err := sql.Open("mysql", m.Dsn)
+	if err != nil {
+		log.Printf("[ERROR] Failed to connect to MySQL server: %s\n", err)
+		return nil, err
+	}
+
+	if m.IndexQuery == "" {
+		return nil, ErrMethodNotImplemented
+	}
+
+	if m.pIndexQuery == nil {
+		stmt, err := db.Prepare(m.IndexQuery)
+		if err != nil {
+			log.Printf("[ERROR] Failed to prepare SQL query: %s\n", err)
+			return nil, err
+		}
+
+		m.pIndexQuery = stmt
+	}
+
+	rows, err := m.pIndexQuery.Query()
+	if err != nil {
+		log.Printf("[ERROR] Failed to execute SQL query: %s\n", err)
+		return nil, err
+	}
+
+	if res, _ := rows.Columns(); len(res) != 2 {
+		return nil, ErrSQLColumns
+	}
+
+	var scanErr error
+	keys := map[string]string{}
+
+	for rows.Next() {
+		var identity, key string
+		scanErr = rows.Scan(&identity, &key)
+		if scanErr != nil {
+			break
+		}
+
+		keys[key] = identity
+	}
+
+	if scanErr != nil {
+		log.Printf("[ERROR] Failed to retrieve row: %s\n", scanErr)
+		return nil, scanErr
+	}
+
+	return keys, nil
+}
+
+func (m *MysqlKeyStore) Update(identity, publicKey string) error {
+	db, err := sql.Open("mysql", m.Dsn)
+	if err != nil {
+		log.Printf("[ERROR] Failed to connect to MySQL server: %s\n", err)
+		return err
+	}
+
+	if m.UpdateQuery == "" {
+		return ErrMethodNotImplemented
+	}
+
+	if m.pUpdateQuery == nil {
+		stmt, err := db.Prepare(m.UpdateQuery)
+		if err != nil {
+			log.Printf("[ERROR] Failed to prepare SQL query: %s\n", err)
+			return err
+		}
+
+		m.pUpdateQuery = stmt
+	}
+
+	_, err = m.pUpdateQuery.Exec(identity, publicKey)
+	if err != nil {
+		log.Printf("[ERROR] Failed to execute SQL query: %s\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (m *MysqlKeyStore) Delete(identity ...interface{}) error {
+	db, err := sql.Open("mysql", m.Dsn)
+	if err != nil {
+		log.Printf("[ERROR] Failed to connect to MySQL server: %s\n", err)
+		return err
+	}
+
+	if m.DeleteQuery == "" {
+		return ErrMethodNotImplemented
+	}
+
+	if m.pDeleteQuery == nil {
+		stmt, err := db.Prepare(m.DeleteQuery)
+		if err != nil {
+			log.Printf("[ERROR] Failed to prepare SQL query: %s\n", err)
+			return err
+		}
+
+		m.pDeleteQuery = stmt
+	}
+
+	_, err = m.pDeleteQuery.Exec(identity)
+	if err != nil {
+		log.Printf("[ERROR] Failed to execute SQL query: %s\n", err)
+		return err
+	}
+
+	return nil
 }

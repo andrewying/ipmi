@@ -151,5 +151,6 @@ func (m *JWTMiddleware) Authenticated(c iris.Context) {
 		return
 	}
 
+	c.Values().SetImmutable("authKey", claims)
 	c.Next()
 }

@@ -56,6 +56,9 @@ type JWTMiddleware struct {
 type AuthorisedKeysInterface interface {
 	New(map[string]string)
 	Get(...interface{}) (string, error)
+	GetAll() (map[string]string, error)
+	Update(string, string) error
+	Delete(...interface{}) error
 }
 
 var (
@@ -64,12 +67,13 @@ var (
 		"mysql": &MysqlKeyStore{},
 	}
 
-	ErrInvalidAlg         = errors.New("signing algorithm is invalid")
-	ErrHMACAlg            = errors.New("HMAC algorithms are not accepted")
-	ErrMissingPubKey      = errors.New("public key is required")
-	ErrMissingPrivKey     = errors.New("private key is required")
-	ErrInvalidExpDuration = errors.New("expiration is longer than the permitted duration")
-	ErrInvalidToken       = errors.New("invalid JWT")
+	ErrMethodNotImplemented = errors.New("method not implemented by key store")
+	ErrInvalidAlg           = errors.New("signing algorithm is invalid")
+	ErrHMACAlg              = errors.New("HMAC algorithms are not accepted")
+	ErrMissingPubKey        = errors.New("public key is required")
+	ErrMissingPrivKey       = errors.New("private key is required")
+	ErrInvalidExpDuration   = errors.New("expiration is longer than the permitted duration")
+	ErrInvalidToken         = errors.New("invalid JWT")
 )
 
 // MiddlewareInit is responsible for the setting up of the authentication
