@@ -20,7 +20,7 @@ const { exec } = require('child_process');
 const opn = require('opn');
 
 function run() {
-    let server = exec('go run . -dev',{
+    let server = exec('go run ./cmd/adsisto -dev',{
         cwd: path.resolve(__dirname, '../')
     }, (error, stdout, stderr) => {
         if (error) {
@@ -43,7 +43,7 @@ function run() {
 }
 
 function build(variables) {
-    exec(`go build . ${getArgs(variables)}`,{
+    exec(`go build ./cmd/adsisto ${getArgs(variables)}`,{
         cwd: path.resolve(__dirname, '../')
     }, (error, stdout, stderr) => {
         if (error) {
@@ -61,7 +61,7 @@ function build(variables) {
 function getArgs(arguments) {
     let array = [];
     for (let [ key, value ] of arguments) {
-        array.push(`-X github.com/adsisto/adsisto.${key}=${value}`);
+        array.push(`-X github.com/adsisto/adsisto/cmd/adsisto.${key}=${value}`);
     }
 
     return array.concat(' ');

@@ -22,8 +22,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/adsisto/adsisto/auth"
-	"github.com/adsisto/adsisto/utils"
+	"github.com/adsisto/adsisto/pkg/auth"
+	"github.com/adsisto/adsisto/pkg/hid"
 	"github.com/go-webpack/webpack"
 	"github.com/hashicorp/logutils"
 	"github.com/kataras/iris"
@@ -103,7 +103,7 @@ func main() {
 	app.Get("/", HomeRenderer)
 	authRoutes(app)
 
-	s := &utils.HidStream{
+	s := &hid.HidStream{
 		Device: config.GetString("usb.hid_device"),
 	}
 	app.Get("api/keystrokes", s.WebsocketHandler())

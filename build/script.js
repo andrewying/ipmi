@@ -44,41 +44,42 @@ program
 
 console.log(` ${emoji.get('package')} Adsisto Build Script `.bgMagenta.green);
 
-git.Repository.open(path.resolve(__dirname, '../'))
-        .then(function (repo) {
-            repo.getHeadCommit()
-                .then(function (res) {
-                    commit = res.id().tostrS();
-                    console.log(`Commit: ${ commit }\n`.green);
+git.Repository
+    .open(path.resolve(__dirname, '../'))
+    .then(function (repo) {
+        repo.getHeadCommit()
+            .then(function (res) {
+                commit = res.id().tostrS();
+                console.log(`Commit: ${ commit }\n`.green);
 
-                    assetCompiler(program.env, function () {
-                        if (program.env !== 'production') {
-                            server = Server.run();
-                        } else {
-                            Server.build({
-                                version: version,
-                                commit: commit
-                            });
+                assetCompiler(program.env, function () {
+                    if (program.env !== 'production') {
+                        server = Server.run();
+                    } else {
+                        Server.build({
+                            version: version,
+                            commit: commit
+                        });
 
-                            console.log(`${emoji.get('white_check_mark')} Successfully built binaries.`.green);
-                            process.exit(0);
-                        }
-                    });
-                })
-                .catch(function (error) {
-                    console.error(
-                        `${emoji.get('exclamation')} Unable to get current commit`.bold.red,
-                        '\n',
-                        error.toString()
-                    );
-                    process.exit(1);
+                        console.log(`${emoji.get('white_check_mark')} Successfully built binaries.`.green);
+                        process.exit(0);
+                    }
                 });
-        })
-        .catch(function (error) {
-            console.error(
-                `${emoji.get('exclamation')} Local directory is not a valid Git repository`.bold.red,
-                '\n',
-                error.toString()
-            );
-            process.exit(1);
-        });
+            })
+            .catch(function (error) {
+                console.error(
+                    `${emoji.get('exclamation')} Unable to get current commit`.bold.red,
+                    '\n',
+                    error.toString()
+                );
+                process.exit(1);
+            });
+    })
+    .catch(function (error) {
+        console.error(
+            `${emoji.get('exclamation')} Local directory is not a valid Git repository`.bold.red,
+            '\n',
+            error.toString()
+        );
+        process.exit(1);
+    });

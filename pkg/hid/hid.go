@@ -15,7 +15,7 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package utils
+package hid
 
 import (
 	"encoding/hex"
