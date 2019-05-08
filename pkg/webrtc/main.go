@@ -21,7 +21,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/adsisto/adsisto/webrtc/gst"
+	"github.com/adsisto/adsisto/pkg/webrtc/gst"
 	"github.com/kataras/iris"
 	"github.com/pion/webrtc/v2"
 	"io/ioutil"
