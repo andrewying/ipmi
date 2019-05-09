@@ -104,6 +104,7 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 	}
 
 	response.JSON(c, iris.Map{
+		"code":  http.StatusOK,
 		"token": session,
 	})
 }

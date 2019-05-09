@@ -51,17 +51,16 @@ func prepareQuery(db *sql.DB, raw string, prepared *sql.Stmt) error {
 		return ErrMethodNotImplemented
 	}
 
+	var err error
+
 	if prepared == nil {
-		stmt, err := db.Prepare(raw)
+		prepared, err = db.Prepare(raw)
 		if err != nil {
 			log.Printf("[ERROR] Failed to prepare SQL query: %s\n", err)
-			return err
 		}
-
-		prepared = stmt
 	}
 
-	return nil
+	return err
 }
 
 func (m *MysqlKeyStore) New(config map[string]string) {
