@@ -5,6 +5,12 @@ nav_order: 0
 
 # Adsisto
 
+<p>
+<a href="https://travis-ci.com/adsisto/adsisto"><img src="https://travis-ci.com/adsisto/adsisto.svg?branch=master" alt="Build Status"></a>&nbsp;
+<a href="https://goreportcard.com/report/github.com/adsisto/adsisto"><img src="https://goreportcard.com/badge/github.com/adsisto/adsisto" alt="Go Report Card" /></a>&nbsp;
+<img alt="GitHub" src="https://img.shields.io/github/license/adsisto/adsisto.svg?color=informational">
+</p>
+
 A web-accessible IPMI system that provides full keyboard control, monitor view, and
 and the ability to reboot computers with standard motherboards remotely as if you
 were sitting in front of them with a keyboard and monitor. 

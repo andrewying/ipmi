@@ -2,6 +2,7 @@
 
 <p align="center">
 <a href="https://travis-ci.com/adsisto/adsisto"><img src="https://travis-ci.com/adsisto/adsisto.svg?branch=master" alt="Build Status"></a>&nbsp;
+<a href="https://goreportcard.com/report/github.com/adsisto/adsisto"><img src="https://goreportcard.com/badge/github.com/adsisto/adsisto" alt="Go Report Card" /></a>&nbsp;
 <img alt="GitHub" src="https://img.shields.io/github/license/adsisto/adsisto.svg?color=informational">
 </p>
 
