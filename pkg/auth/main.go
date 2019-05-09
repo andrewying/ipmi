@@ -23,6 +23,7 @@ import (
 	"github.com/SermoDigital/jose/jws"
 	"github.com/SermoDigital/jose/jwt"
 	"github.com/kataras/iris"
+	"gopkg.in/go-playground/validator.v9"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -50,14 +51,16 @@ type JWTMiddleware struct {
 	AuthnTimeout   time.Duration
 	SessionTimeout time.Duration
 	Leeway         time.Duration
+	Validator      *validator.Validate
 	Unauthorised   func(int, iris.Context)
 }
 
 type AuthorisedKeysInterface interface {
 	New(map[string]string)
 	Get(...interface{}) (string, error)
-	GetAll() (map[string]string, error)
-	Update(string, string) error
+	GetAll() (interface{}, error)
+	Insert(...string) error
+	Update(...string) error
 	Delete(...interface{}) error
 }
 
@@ -68,6 +71,7 @@ var (
 	}
 
 	ErrMethodNotImplemented = errors.New("method not implemented by key store")
+	ErrKeyNotFound          = errors.New("authorised key not found")
 	ErrInvalidAlg           = errors.New("signing algorithm is invalid")
 	ErrHMACAlg              = errors.New("HMAC algorithms are not accepted")
 	ErrMissingPubKey        = errors.New("public key is required")
@@ -136,6 +140,22 @@ func (m *JWTMiddleware) MiddlewareInit() error {
 		m.AuthorisedKeys.New(m.InterfaceConfig)
 	}
 
+	m.Validator = validator.New()
+	if err := m.Validator.RegisterValidation(
+		"uniqueIdentity",
+		m.uniqueIdentityValidator,
+	); err != nil {
+		return err
+	}
+	if err := m.Validator.RegisterValidation(
+		"existsIdentity",
+		m.existsIdentityValidator,
+	); err != nil {
+		return err
+	}
+	if err := m.Validator.RegisterValidation("publicKey", PublicKeyValidator); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -155,7 +175,7 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 	issuer := claims.Get("iss")
 	log.Printf("[INFO] Parsed authentication token from %s", issuer)
 
-	validator := jws.NewValidator(
+	validate := jws.NewValidator(
 		jws.Claims{},
 		m.Leeway,
 		m.Leeway,
@@ -184,7 +204,7 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 	err = token.Validate(
 		key,
 		jws.GetSigningMethod(m.SigningAlgorithm),
-		validator,
+		validate,
 	)
 	if err != nil {
 		log.Print(err)
@@ -215,7 +235,7 @@ func (m *JWTMiddleware) GetSessionToken() (string, error) {
 
 // ValidateSessionToken validates the validity of the JWT token.
 func (m *JWTMiddleware) ValidateSessionToken(t jwt.JWT) (bool, error) {
-	validator := jws.NewValidator(
+	validate := jws.NewValidator(
 		jws.Claims{},
 		m.Leeway,
 		m.Leeway,
@@ -227,7 +247,7 @@ func (m *JWTMiddleware) ValidateSessionToken(t jwt.JWT) (bool, error) {
 	err := t.Validate(
 		m.PubKey,
 		jws.GetSigningMethod(m.SigningAlgorithm),
-		validator,
+		validate,
 	)
 	if err != nil {
 		return false, err
