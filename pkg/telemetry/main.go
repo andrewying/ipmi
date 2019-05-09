@@ -100,6 +100,7 @@ func New(dataDir string) {
 	}
 }
 
+// GenerateUuid generates unique identifier for telemetry.
 func GenerateUuid() error {
 	id, err := uuid.NewRandom()
 	if err != nil {

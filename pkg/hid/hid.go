@@ -28,11 +28,13 @@ import (
 	"strings"
 )
 
-type HidStream struct {
+// Stream is a instance of HID device.
+type Stream struct {
 	Device string
 }
 
-type HidStreamMessage struct {
+// StreamMessage is a instance of the message to be streamed to the HID device.
+type StreamMessage struct {
 	Key   string
 	Ctrl  bool
 	Shift bool
@@ -40,21 +42,23 @@ type HidStreamMessage struct {
 	Meta  bool
 }
 
-func (s *HidStream) WebsocketHandler() context.Handler {
+// WebsocketHandler sets up a WebSocket instance for receiving keystrokes events
+// from the client.
+func (s *Stream) WebsocketHandler() context.Handler {
 	ws := websocket.New(websocket.Config{})
 	ws.OnConnection(s.receiveInput)
 
 	return ws.Handler()
 }
 
-func (s *HidStream) receiveInput(c websocket.Connection) {
+func (s *Stream) receiveInput(c websocket.Connection) {
 	file, err := os.Create(s.Device)
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
 
-	message := HidStreamMessage{}
+	message := StreamMessage{}
 
 	c.OnMessage(func(data []byte) {
 		err := json.Unmarshal(data, message)

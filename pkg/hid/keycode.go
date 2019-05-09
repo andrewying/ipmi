@@ -175,7 +175,7 @@ var AliasMap = map[string]string{
 	"ARROWUP":    "UP",
 }
 
-func (m *HidStreamMessage) ParseMessage() {
+func (m *StreamMessage) ParseMessage() {
 	m.Key = strings.ToUpper(m.Key)
 
 	if value, found := KeyMap[m.Key]; found {
@@ -191,7 +191,7 @@ func (m *HidStreamMessage) ParseMessage() {
 	m.Key = ""
 }
 
-func (m *HidStreamMessage) GenerateHID() [8]byte {
+func (m *StreamMessage) GenerateHID() [8]byte {
 	var array [8]byte
 
 	if m.Key == "" {

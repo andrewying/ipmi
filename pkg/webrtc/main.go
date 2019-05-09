@@ -29,6 +29,7 @@ import (
 	"math/rand"
 )
 
+// Config is the configuration for the WebRTC stream.
 type Config struct {
 	StunServer string
 	Source     string
@@ -36,6 +37,7 @@ type Config struct {
 	track      *webrtc.Track
 }
 
+// StartConnection sets up the services required to establish a WebRTC stream.
 func (c *Config) StartConnection() error {
 	stunUrl := fmt.Sprintf("stun:%s", c.StunServer)
 
@@ -55,6 +57,7 @@ func (c *Config) StartConnection() error {
 	return nil
 }
 
+// StreamStart prepares a new stream and returns the offer encoded as string.
 func (c *Config) StreamStart() (string, error) {
 	track, err := c.connection.NewTrack(
 		webrtc.DefaultPayloadTypeVP8, rand.Uint32(), "video", "pion1",
@@ -87,6 +90,7 @@ func (c *Config) StreamStart() (string, error) {
 	return base64.StdEncoding.EncodeToString(encoded), nil
 }
 
+// SdpHandler sets up a SDP handler for responding to a stream callback
 func (c *Config) SdpHandler(ctx iris.Context) {
 	body, _ := ioutil.ReadAll(ctx.Request().Body)
 	obj, err := base64.StdEncoding.DecodeString(string(body))
@@ -106,6 +110,7 @@ func (c *Config) SdpHandler(ctx iris.Context) {
 	}
 }
 
+// RemoteCallback answers the stream callback and starts the stream.
 func (c *Config) RemoteCallback(answer webrtc.SessionDescription) error {
 	err := c.connection.SetRemoteDescription(answer)
 	if err != nil {

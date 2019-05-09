@@ -25,7 +25,8 @@ import (
 	"time"
 )
 
-type GPIOConfig struct {
+// Config is the configuration for the GPIO pin communications package.
+type Config struct {
 	// InputPins defines the name of the pins used to receive inputs
 	InputPins []string
 	// OutputPins defines the name of the pins used to send outputs
@@ -37,7 +38,7 @@ var (
 )
 
 // SetupPins initiates the host and set all the output pins to the low state
-func (c *GPIOConfig) SetupPins() []error {
+func (c *Config) SetupPins() []error {
 	var ers []error
 
 	if _, err := host.Init(); err != nil {
@@ -55,7 +56,8 @@ func (c *GPIOConfig) SetupPins() []error {
 	return ers
 }
 
-func (c *GPIOConfig) TogglePin(pin string) error {
+// TogglePin toggles the GPIO pin specified.
+func (c *Config) TogglePin(pin string) error {
 	found := false
 
 	for _, p := range c.OutputPins {

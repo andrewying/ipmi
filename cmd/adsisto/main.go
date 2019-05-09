@@ -103,7 +103,7 @@ func main() {
 	app.Get("/", HomeRenderer)
 	authRoutes(app)
 
-	s := &hid.HidStream{
+	s := &hid.Stream{
 		Device: config.GetString("usb.hid_device"),
 	}
 	app.Get("api/keystrokes", s.WebsocketHandler())

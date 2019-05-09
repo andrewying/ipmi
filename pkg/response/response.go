@@ -22,6 +22,7 @@ import (
 	"log"
 )
 
+// JSON renders a JSON output.
 func JSON(c iris.Context, m iris.Map) {
 	_, err := c.JSON(m)
 	if err != nil {
@@ -29,6 +30,7 @@ func JSON(c iris.Context, m iris.Map) {
 	}
 }
 
+// View compiles and renders view template.
 func View(c iris.Context, data map[string]string, tmpl string) {
 	for key, value := range data {
 		c.ViewData(key, value)
