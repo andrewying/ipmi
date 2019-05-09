@@ -98,7 +98,7 @@ html {
 
 body {
   margin: 0;
-  background-color: mix(darken($light-gray, 1%), $primary, 99%);
+  background-color: $light-gray;
 }
 
 .text-description {
@@ -156,11 +156,12 @@ a {
   }
 
   &-outline {
-    border-color: adjust-color($primary, $saturation: -50%, $lightness: 25%);
+    border-color: adjust-color($primary, $saturation: -50%, $lightness: 30%);
     color: adjust-color($primary, $saturation: -40%, $lightness: 10%);
+    background-color: $light-gray;
 
     &:hover {
-      background-color: mix(darken($light-gray, 2.5%), $primary, 90%);
+      background-color: mix(darken($light-gray, 1%), $primary, 95%);
     }
   }
 }
@@ -258,9 +259,9 @@ a.help {
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  border-bottom: 1px solid adjust-color($primary, $lightness: 60%, $saturation: -50%);
   width: 100%;
   height: 100px;
-  background: #cedee7;
   padding: 0 1rem;
   z-index: 999;
 
@@ -284,8 +285,7 @@ a.help {
 .sidebar {
   display: flex;
   height: calc(100vh - 100px);
-  border-right: mix(darken($light-gray, 2.5%), $primary, 99%);
-  box-shadow: 5px 0 5px 0 adjust-color($primary, $lightness: 70%, $saturation: -45%);
+  border-right: 1px solid adjust-color($primary, $lightness: 60%, $saturation: -50%);
   flex-shrink: 1;
   flex-direction: column;
   justify-content: space-between;
@@ -332,7 +332,7 @@ a.help {
 
 .content {
   height: calc(100vh - 100px);
-  background-color: $light-gray;
+  background-color: mix($light-gray, $primary, 96%);
   flex-grow: 1;
   padding: 0 1rem 0 2rem;
   z-index: 99;
@@ -345,7 +345,7 @@ a.help {
     margin: 1rem 0;
     padding: .5rem 1.35rem;
     background-color: $light-gray;
-    border: 1px solid mix(darken($light-gray, 1%), $primary, 92.5%);
+    border: 1px solid adjust-color($primary, $lightness: 50%, $saturation: -50%);
     border-radius: .5rem;
     box-shadow: 0 0 .5rem adjust-color($primary, $lightness: 50%, $saturation: -50%);
   }
@@ -368,7 +368,8 @@ a.help {
 
   &__logo {
     width: 50vw;
-    max-width: 250px;
+    max-width: 220px;
+    padding-bottom: 10px;
   }
 }
 
@@ -423,7 +424,7 @@ a.help {
 .images {
   border: 2px dashed mix($light-gray, $primary, 70%);
   border-radius: $base-border-radius * 2;
-  background-color: mix(darken($light-gray, 1%), $primary, 97.5%);
+  background-color: mix($light-gray, $primary, 98%);
   margin: 1rem 0;
   max-width: 750px;
 
@@ -435,6 +436,7 @@ a.help {
     flex-grow: 1;
     border: 1px solid mix($light-gray, $primary, 20%);
     border-radius: $base-border-radius * 2;
+    background-color: mix($light-gray, $primary, 98%);
     margin: 1rem 1rem 1rem 0;
     padding: 1.25rem 1rem;
   }
