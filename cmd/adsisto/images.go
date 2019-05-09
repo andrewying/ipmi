@@ -20,6 +20,7 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
+	"github.com/adsisto/adsisto/pkg/response"
 	"github.com/kataras/iris"
 	"io/ioutil"
 	"log"
@@ -35,7 +36,7 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 	file, header, err := c.FormFile("file")
 	if err != nil {
 		c.StatusCode(http.StatusBadRequest)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"error": fmt.Sprintf("Unable to process file: %s", err),
 		})
 		return
@@ -45,7 +46,7 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 
 	if filepath.Ext(header.Filename) != "iso" {
 		c.StatusCode(http.StatusNotAcceptable)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"error": "File uploaded must be a .iso file",
 		})
 		return
@@ -54,7 +55,7 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
 		c.StatusCode(http.StatusBadRequest)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"error": fmt.Sprintf("Unable to process file: %s", err),
 		})
 		return
@@ -64,7 +65,7 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 	_, err = hash.Write(content)
 	if err != nil {
 		c.StatusCode(http.StatusInternalServerError)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"error": "Unable to save file to server",
 		})
 		return
@@ -78,13 +79,13 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 	if err != nil {
 		log.Printf("[ERROR] Unable to save uploaded image file: %s\n", err)
 		c.StatusCode(http.StatusInternalServerError)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"error": "Unable to save file to server",
 		})
 		return
 	}
 
-	c.JSON(iris.Map{
+	response.JSON(c, iris.Map{
 		"file": fmt.Sprintf("%s.iso", hash.Sum(nil)),
 	})
 }

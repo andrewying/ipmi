@@ -137,7 +137,10 @@ func main() {
 		}
 	}()
 
-	app.Run(runner, iris.WithoutInterruptHandler)
+	err = app.Run(runner, iris.WithoutInterruptHandler)
+	if err != nil {
+		log.Fatalf("[ERROR] Unable to start web server: %s\n", err)
+	}
 }
 
 func loadConfig(path string) {

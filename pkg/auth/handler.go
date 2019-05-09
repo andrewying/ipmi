@@ -20,6 +20,7 @@ package auth
 import (
 	"fmt"
 	"github.com/SermoDigital/jose/jws"
+	"github.com/adsisto/adsisto/pkg/response"
 	"github.com/kataras/iris"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
@@ -39,7 +40,7 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 	r := &authRequest{}
 	if err := c.ReadJSON(r); err != nil {
 		c.StatusCode(http.StatusBadRequest)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"code":    http.StatusBadRequest,
 			"message": "invalid authentication request",
 		})
@@ -47,7 +48,7 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 	}
 	if err := validate.Struct(r); err != nil {
 		c.StatusCode(http.StatusBadRequest)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"code":    http.StatusBadRequest,
 			"message": "invalid authentication request",
 		})
@@ -56,7 +57,7 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 
 	if err := c.ReadJSON(r); err != nil {
 		c.StatusCode(http.StatusBadRequest)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"code":    http.StatusBadRequest,
 			"message": "invalid authentication request",
 		})
@@ -68,13 +69,13 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 		switch err {
 		case ErrInvalidToken:
 			c.StatusCode(http.StatusBadRequest)
-			c.JSON(iris.Map{
+			response.JSON(c, iris.Map{
 				"code":    http.StatusBadRequest,
 				"message": "invalid JWT",
 			})
 		default:
 			c.StatusCode(http.StatusInternalServerError)
-			c.JSON(iris.Map{
+			response.JSON(c, iris.Map{
 				"code":    http.StatusInternalServerError,
 				"message": fmt.Sprint(err),
 			})
@@ -85,7 +86,7 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 
 	if !auth {
 		c.StatusCode(http.StatusUnauthorized)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"code":    http.StatusUnauthorized,
 			"message": "unauthenticated",
 		})
@@ -95,14 +96,14 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 	session, err := m.GetSessionToken()
 	if err != nil {
 		c.StatusCode(http.StatusInternalServerError)
-		c.JSON(iris.Map{
+		response.JSON(c, iris.Map{
 			"code":    http.StatusInternalServerError,
 			"message": fmt.Sprint(err),
 		})
 		return
 	}
 
-	c.JSON(iris.Map{
+	response.JSON(c, iris.Map{
 		"token": session,
 	})
 }

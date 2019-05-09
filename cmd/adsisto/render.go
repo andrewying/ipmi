@@ -19,6 +19,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/adsisto/adsisto/pkg/response"
 	"github.com/go-webpack/webpack/reader/manifest"
 	"github.com/kataras/iris"
 	"log"
@@ -35,19 +36,19 @@ func HomeRenderer(c iris.Context) {
 		pushAssets(pusher, assets)
 	}
 
-	c.ViewData("name", appName)
-	c.ViewData("domain", domain)
-	c.ViewData("cookieName", cookieName)
-
-	c.View("index.tmpl")
+	response.View(c, map[string]string{
+		"name":       appName,
+		"domain":     domain,
+		"cookieName": cookieName,
+	}, "index.tmpl")
 }
 
 func LoginRenderer(c iris.Context) {
-	c.ViewData("name", fmt.Sprintf("Login - %s", appName))
-	c.ViewData("domain", domain)
-	c.ViewData("cookieName", cookieName)
-
-	c.View("login.tmpl")
+	response.View(c, map[string]string{
+		"name":       fmt.Sprintf("Login - %s", appName),
+		"domain":     domain,
+		"cookieName": cookieName,
+	}, "login.tmpl")
 }
 
 func pushAssets(pusher http.Pusher, assets map[string][]string) {
