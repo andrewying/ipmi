@@ -18,6 +18,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/SermoDigital/jose/jws"
@@ -31,9 +32,13 @@ type authRequest struct {
 	Token string `json:"token" validate:"required"`
 }
 
+const (
+	claimsKey     int = 0
+	HeaderPattern     = `Bearer ([A-Za-z0-9\-\._~\+\/]+=*)$`
+)
+
 var (
-	validate      = validator.New()
-	HeaderPattern = `Bearer ([A-Za-z0-9\-\._~\+\/]+=*)$`
+	validate = validator.New()
 )
 
 func (m *JWTMiddleware) AuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +60,7 @@ func (m *JWTMiddleware) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	valid, err := m.ValidateAuthnRequest(auth.Token)
+	key, err := m.ValidateAuthnRequest(auth.Token)
 	if err != nil {
 		switch err {
 		case ErrInvalidToken:
@@ -73,7 +78,7 @@ func (m *JWTMiddleware) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !valid {
+	if key == nil {
 		response.JSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"code":    http.StatusUnauthorized,
 			"message": "unauthenticated",
@@ -81,7 +86,7 @@ func (m *JWTMiddleware) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := m.GetSessionToken()
+	session, err := m.GetSessionToken(key)
 	if err != nil {
 		response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
 			"code":    http.StatusInternalServerError,
@@ -89,6 +94,12 @@ func (m *JWTMiddleware) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	cookie := &http.Cookie{
+		Name:  m.CookieName,
+		Value: session,
+	}
+	http.SetCookie(w, cookie)
 
 	response.JSON(w, http.StatusOK, map[string]interface{}{
 		"code":  http.StatusOK,
@@ -141,6 +152,8 @@ func (m *JWTMiddleware) Authenticated(next http.Handler) http.Handler {
 			return
 		}
 
+		ctx := r.Context()
+		r = r.WithContext(context.WithValue(ctx, claimsKey, claims))
 		next.ServeHTTP(w, r)
 	})
 }

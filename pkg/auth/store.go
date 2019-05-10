@@ -27,7 +27,7 @@ import (
 )
 
 type MysqlKeyStore struct {
-	AuthorisedKeysInterface
+	KeysStoreInterface
 	Dsn          string
 	SelectQuery  string
 	pSelectQuery *sql.Stmt
@@ -75,41 +75,47 @@ func (m *MysqlKeyStore) New(config map[string]string) {
 	}
 }
 
-func (m *MysqlKeyStore) Get(identity ...interface{}) (string, error) {
+func (m *MysqlKeyStore) Get(identity ...interface{}) (KeyInstance, error) {
+	key := KeyInstance{}
+
 	if identity == nil {
-		return "", ErrInvalidInput
+		return key, ErrInvalidInput
 	}
 
 	db, err := sql.Open("mysql", m.Dsn)
 	if err != nil {
 		log.Printf("[ERROR] Failed to connect to MySQL server: %s\n", err)
-		return "", err
+		return key, err
 	}
 
 	if err = prepareQuery(db, m.SelectQuery, m.pSelectQuery); err != nil {
-		return "", err
+		return key, err
 	}
 
 	rows, err := m.pSelectQuery.Query(identity)
 	if err != nil {
 		log.Printf("[ERROR] Failed to execute SQL query: %s\n", err)
-		return "", err
+		return key, err
 	}
 
 	if res, _ := rows.Columns(); len(res) != 1 {
-		return "", ErrSQLColumns
+		return key, ErrSQLColumns
 	}
 
 	if !rows.Next() {
-		return "", ErrKeyNotFound
+		return key, ErrKeyNotFound
 	}
 
-	var key string
-	err = rows.Scan(&key)
+	var publicKey string
+	var accessLevel int
+
+	err = rows.Scan(&publicKey, &accessLevel)
 	if err != nil {
-		return "", err
+		return key, err
 	}
 
+	key.Key = publicKey
+	key.AccessLevel = accessLevel
 	return key, nil
 }
 

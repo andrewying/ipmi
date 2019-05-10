@@ -46,7 +46,7 @@ type JWTMiddleware struct {
 	// Interface configuration
 	InterfaceConfig map[string]string
 	// An AuthorisedKeyInterface instance
-	AuthorisedKeys AuthorisedKeysInterface
+	AuthorisedKeys KeysStoreInterface
 	CookieName     string
 	AuthnTimeout   time.Duration
 	SessionTimeout time.Duration
@@ -55,18 +55,23 @@ type JWTMiddleware struct {
 	Unauthorised   func(int, http.ResponseWriter)
 }
 
-type AuthorisedKeysInterface interface {
+type KeysStoreInterface interface {
 	New(map[string]string)
-	Get(...interface{}) (string, error)
+	Get(...interface{}) (KeyInstance, error)
 	GetAll() (interface{}, error)
 	Insert(...string) error
 	Update(...string) error
 	Delete(...interface{}) error
 }
 
+type KeyInstance struct {
+	Key         string
+	AccessLevel int
+}
+
 var (
-	// Mapping between name and instances of AuthorisedKeysInterface
-	keysInterfaces = map[string]AuthorisedKeysInterface{
+	// Mapping between name and instances of KeysStoreInterface
+	keysInterfaces = map[string]KeysStoreInterface{
 		"mysql": &MysqlKeyStore{},
 	}
 
@@ -160,7 +165,7 @@ func (m *JWTMiddleware) MiddlewareInit() error {
 }
 
 // ValidateAuthnRequest validates authentication request for a validly signed JWT
-func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
+func (m *JWTMiddleware) ValidateAuthnRequest(t string) (interface{}, error) {
 	log.Printf(
 		"[INFO] Validating authentication token \"%s\"\n",
 		t,
@@ -168,7 +173,7 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 
 	token, err := jws.ParseJWT([]byte(t))
 	if err != nil {
-		return false, ErrInvalidToken
+		return nil, ErrInvalidToken
 	}
 
 	claims := token.Claims()
@@ -193,36 +198,37 @@ func (m *JWTMiddleware) ValidateAuthnRequest(t string) (bool, error) {
 	)
 
 	key, err := m.AuthorisedKeys.Get(issuer)
-	if key == "" {
-		return false, nil
+	if key == (KeyInstance{}) {
+		return nil, nil
 	}
 	if err != nil {
 		log.Print(err)
-		return false, err
+		return nil, err
 	}
 
 	err = token.Validate(
-		key,
+		key.Key,
 		jws.GetSigningMethod(m.SigningAlgorithm),
 		validate,
 	)
 	if err != nil {
 		log.Print(err)
-		return false, nil
+		return nil, nil
 	}
 
-	return true, nil
+	return key, nil
 }
 
 // GetSessionToken generate session token, in the form of a valid JWT signed
 // using the server's private key.
-func (m *JWTMiddleware) GetSessionToken() (string, error) {
+func (m *JWTMiddleware) GetSessionToken(data interface{}) (string, error) {
 	now := time.Now()
 
 	claim := jws.Claims{}
 	claim.SetIssuedAt(now)
 	claim.SetNotBefore(now)
 	claim.SetExpiration(now.Add(m.SessionTimeout))
+	claim.Set("user", data)
 
 	token := jws.NewJWT(claim, jws.GetSigningMethod(m.SigningAlgorithm))
 	bytes, err := token.Serialize(m.PrivKey)
