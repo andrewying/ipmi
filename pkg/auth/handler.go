@@ -25,6 +25,7 @@ import (
 	"github.com/adsisto/adsisto/pkg/response"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
+	"reflect"
 	"regexp"
 )
 
@@ -107,6 +108,8 @@ func (m *JWTMiddleware) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Authenticated is a middleware for protecting routes which should only accessible
+// to authenticated users.
 func (m *JWTMiddleware) Authenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t := r.Header.Get("Authorization")
@@ -152,8 +155,40 @@ func (m *JWTMiddleware) Authenticated(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := r.Context()
-		r = r.WithContext(context.WithValue(ctx, claimsKey, claims))
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), claimsKey, claims.Get("user"))
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+// HasAccessLevel returns the middleware which can be used to protect routes from
+// being accessed by user with an access level lower than lv.
+func (m *JWTMiddleware) HasAccessLevel(lv int64) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			user := r.Context().Value(claimsKey)
+			if user == nil {
+				m.Unauthorised(http.StatusForbidden, w)
+				return
+			}
+
+			reflected := reflect.ValueOf(user)
+			if reflected.Kind() != reflect.Map ||
+				reflected.MapIndex(reflect.ValueOf("accessLevel")) == reflect.Zero(reflected.Type()) {
+				response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
+					"code":    http.StatusInternalServerError,
+					"message": "user instance in authentication token is invalid",
+				})
+				return
+			}
+
+			if reflected.MapIndex(reflect.ValueOf("accessLevel")).Int() < lv {
+				m.Unauthorised(http.StatusForbidden, w)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(fn)
+	}
 }

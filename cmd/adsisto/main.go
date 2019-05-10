@@ -87,7 +87,10 @@ func main() {
 	log.SetOutput(filter)
 
 	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(60 * time.Second))
 
 	var server *http.Server
 	if *isDev {
@@ -118,19 +121,21 @@ func main() {
 	}
 
 	loadAssets(r, *isDev)
-
-	r.Get("/", HomeRenderer)
 	authRoutes(r)
 
-	s := &hid.Stream{
-		Device: config.GetString("usb.hid_device"),
-	}
-	r.Get("/api/keystrokes", s.WebsocketHandler)
+	r.Group(func(auth chi.Router) {
+		auth.Get("/", HomeRenderer)
 
-	images := &ImagesUploader{
-		UploadDir: config.GetString("images.upload_dir"),
-	}
-	r.Post("/api/images", images.UploadHandler)
+		s := &hid.Stream{
+			Device: config.GetString("usb.hid_device"),
+		}
+		auth.Get("/api/keystrokes", s.WebsocketHandler)
+
+		images := &ImagesUploader{
+			UploadDir: config.GetString("images.upload_dir"),
+		}
+		auth.Post("/api/images", images.UploadHandler)
+	})
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch,
@@ -188,7 +193,7 @@ func loadConfig(path string) {
 	cookieName = config.GetString("app.cookie_name")
 }
 
-func authRoutes(r *chi.Mux) {
+func authRoutes(r *chi.Mux) *auth.JWTMiddleware {
 	storeConfig := config.GetStringMapString("keys.store_config")
 	parsedStoreConfig := make(map[string]string)
 
@@ -233,6 +238,8 @@ func authRoutes(r *chi.Mux) {
 
 	r.Get("/auth/login", LoginRenderer)
 	r.Post("/auth/login", m.AuthHandler)
+
+	return m
 }
 
 func loadAssets(r *chi.Mux, dev bool) {
