@@ -26,7 +26,7 @@ import (
 
 func (m *JWTMiddleware) uniqueIdentityValidator(field validator.FieldLevel) bool {
 	value, err := m.AuthorisedKeys.Get(field.Field().String())
-	if value != "" {
+	if value == (KeyInstance{}) {
 		return false
 	}
 
@@ -40,7 +40,7 @@ func (m *JWTMiddleware) uniqueIdentityValidator(field validator.FieldLevel) bool
 
 func (m *JWTMiddleware) existsIdentityValidator(field validator.FieldLevel) bool {
 	value, err := m.AuthorisedKeys.Get(field.Field().String())
-	if value == "" {
+	if value == (KeyInstance{}) {
 		if err != ErrKeyNotFound {
 			log.Printf("[ERROR] Validation with authorised key store failed: %s\n", err)
 			return false
