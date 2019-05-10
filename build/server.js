@@ -17,7 +17,7 @@
 
 const path = require('path');
 const { exec } = require('child_process');
-const opn = require('opn');
+const open = require('open');
 
 function run() {
     let server = exec('go run ./cmd/adsisto -dev',{
@@ -32,7 +32,7 @@ function run() {
         console.log('[SERVER]'.bgGreen + ` ${stderr}`.red);
     });
     console.log('[SERVER]'.bgGreen + ' Web server started');
-    setTimeout(() => opn('http://localhost:8080'), 10000);
+    setTimeout(() => open('http://localhost:8080'), 10000);
 
     server.on('close', (code) => {
         console.log('[SERVER]'.bgGreen + ` Exited with code ${code}`.bold);
@@ -43,7 +43,7 @@ function run() {
 }
 
 function build(variables) {
-    exec(`go build ./cmd/adsisto ${getArgs(variables)}`,{
+    exec(`go build ./cmd/adsisto -o ./bin/adsisto ${getArgs(variables)}`,{
         cwd: path.resolve(__dirname, '../')
     }, (error, stdout, stderr) => {
         if (error) {

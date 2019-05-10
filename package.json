@@ -44,7 +44,6 @@
     "node-emoji": "^1.10.0",
     "node-sass": "^4.0.0",
     "nodegit": "^0.24.3",
-    "opn": "^6.0.0",
     "postcss-functions": "^3.0.0",
     "postcss-import": "^12.0.1",
     "postcss-loader": "^3.0.0",
@@ -66,5 +65,8 @@
     "url-loader": "^1.1.2",
     "webpack": "^4.31.0",
     "webpack-manifest-plugin": "^2.0.4"
+  },
+  "dependencies": {
+    "open": "^6.2.0"
   }
 }

@@ -57,6 +57,7 @@ let config = {
                 use: {
                     loader: "file-loader",
                     options: {
+                        context: path.resolve(__dirname, "../assets"),
                         name: '[path][name].[ext]',
                     },
                 }
@@ -70,7 +71,7 @@ let config = {
                             hot: !production
                         }
                     },
-                    "css-loader",
+                    "css-loader?url=false",
                     {
                         loader: "postcss-loader",
                         options: {
