@@ -18,8 +18,8 @@
 package auth
 
 import (
+	"encoding/json"
 	"github.com/adsisto/adsisto/pkg/response"
-	"github.com/kataras/iris"
 	"net/http"
 )
 
@@ -39,33 +39,32 @@ type deleteKeyInstance struct {
 	Identity string `json:"identity" validate:"required,email,existsIdentity"`
 }
 
-func (m *JWTMiddleware) IndexHandler(c iris.Context) {
+func (m *JWTMiddleware) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	keys, err := m.AuthorisedKeys.GetAll()
 	if err != nil {
-		c.StatusCode(http.StatusInternalServerError)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
 			"code":    http.StatusInternalServerError,
 			"message": "unable to retrieve authorised keys",
 		})
 		return
 	}
 
-	response.JSON(c, iris.Map{
+	response.JSON(w, http.StatusOK, map[string]interface{}{
 		"code": http.StatusOK,
 		"keys": keys,
 	})
 }
 
-func (m *JWTMiddleware) InsertHandler(c iris.Context) {
+func (m *JWTMiddleware) InsertHandler(w http.ResponseWriter, r *http.Request) {
 	instance := &newKeyInstance{}
-	err := c.ReadForm(instance)
-	if err != nil {
-		invalidUserInput(c)
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(instance); err != nil {
+		invalidUserInput(w)
 		return
 	}
 
 	if err := m.Validator.Struct(instance); err != nil {
-		invalidUserInput(c)
+		invalidUserInput(w)
 		return
 	}
 
@@ -73,115 +72,108 @@ func (m *JWTMiddleware) InsertHandler(c iris.Context) {
 		instance.AccessLevel = "0"
 	}
 
-	err = m.AuthorisedKeys.Insert(
+	err := m.AuthorisedKeys.Insert(
 		instance.Identity,
 		instance.PublicKey,
 		instance.AccessLevel,
 	)
 	if err != nil {
 		if err == ErrMethodNotImplemented {
-			c.StatusCode(http.StatusBadRequest)
-			response.JSON(c, iris.Map{
+			response.JSON(w, http.StatusBadRequest, map[string]interface{}{
 				"code":    http.StatusBadRequest,
 				"message": "method not implemented",
 			})
 			return
 		}
 
-		c.StatusCode(http.StatusInternalServerError)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
 			"code":    http.StatusInternalServerError,
 			"message": "unable to insert new public key",
 		})
 		return
 	}
 
-	response.JSON(c, iris.Map{
+	response.JSON(w, http.StatusNoContent, map[string]interface{}{
 		"code": http.StatusNoContent,
 	})
 }
 
-func (m *JWTMiddleware) UpdateHandler(c iris.Context) {
+func (m *JWTMiddleware) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	instance := &existingKeyInstance{}
-	err := c.ReadForm(instance)
-	if err != nil {
-		invalidUserInput(c)
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(instance); err != nil {
+		invalidUserInput(w)
 		return
 	}
 
 	if err := m.Validator.Struct(instance); err != nil {
-		invalidUserInput(c)
+		invalidUserInput(w)
 		return
 	}
 
-	err = m.AuthorisedKeys.Update(
+	err := m.AuthorisedKeys.Update(
 		instance.Identity,
 		instance.PublicKey,
 		instance.AccessLevel,
 	)
 	if err != nil {
 		if err == ErrMethodNotImplemented {
-			c.StatusCode(http.StatusBadRequest)
-			response.JSON(c, iris.Map{
+			response.JSON(w, http.StatusBadRequest, map[string]interface{}{
 				"code":    http.StatusBadRequest,
 				"message": "method not implemented",
 			})
 			return
 		}
 
-		c.StatusCode(http.StatusInternalServerError)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
 			"code":    http.StatusInternalServerError,
-			"message": "unable to update new public key",
+			"message": "unable to update public key",
 		})
 		return
 	}
 
-	response.JSON(c, iris.Map{
+	response.JSON(w, http.StatusNoContent, map[string]interface{}{
 		"code": http.StatusNoContent,
 	})
 }
 
-func invalidUserInput(c iris.Context) {
-	c.StatusCode(http.StatusBadRequest)
-	response.JSON(c, iris.Map{
+func invalidUserInput(w http.ResponseWriter) {
+	response.JSON(w, http.StatusBadRequest, map[string]interface{}{
 		"code":    http.StatusBadRequest,
 		"message": "invalid user inputs",
 	})
 }
 
-func (m *JWTMiddleware) DeleteHandler(c iris.Context) {
+func (m *JWTMiddleware) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	instance := &deleteKeyInstance{}
-	err := c.ReadForm(instance)
-	if err != nil {
-		invalidUserInput(c)
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(instance); err != nil {
+		invalidUserInput(w)
 		return
 	}
 
 	if err := m.Validator.Struct(instance); err != nil {
-		invalidUserInput(c)
+		invalidUserInput(w)
 		return
 	}
 
 	if err := m.AuthorisedKeys.Delete(instance.Identity); err != nil {
 		if err == ErrMethodNotImplemented {
-			c.StatusCode(http.StatusBadRequest)
-			response.JSON(c, iris.Map{
+			response.JSON(w, http.StatusBadRequest, map[string]interface{}{
 				"code":    http.StatusBadRequest,
 				"message": "method not implemented",
 			})
 			return
 		}
 
-		c.StatusCode(http.StatusInternalServerError)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
 			"code":    http.StatusInternalServerError,
-			"message": "unable to update new public key",
+			"message": "unable to delete public key",
 		})
 		return
 	}
 
-	response.JSON(c, iris.Map{
+	response.JSON(w, http.StatusNoContent, map[string]interface{}{
 		"code": http.StatusNoContent,
 	})
 }

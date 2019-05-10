@@ -22,10 +22,10 @@ import (
 	"github.com/SermoDigital/jose/crypto"
 	"github.com/SermoDigital/jose/jws"
 	"github.com/SermoDigital/jose/jwt"
-	"github.com/kataras/iris"
 	"gopkg.in/go-playground/validator.v9"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -52,7 +52,7 @@ type JWTMiddleware struct {
 	SessionTimeout time.Duration
 	Leeway         time.Duration
 	Validator      *validator.Validate
-	Unauthorised   func(int, iris.Context)
+	Unauthorised   func(int, http.ResponseWriter)
 }
 
 type AuthorisedKeysInterface interface {

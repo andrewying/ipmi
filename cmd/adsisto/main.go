@@ -19,16 +19,20 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
 	"github.com/adsisto/adsisto/pkg/auth"
 	"github.com/adsisto/adsisto/pkg/hid"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-webpack/webpack"
 	"github.com/hashicorp/logutils"
-	"github.com/kataras/iris"
 	"github.com/spf13/viper"
+	"html/template"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -45,6 +49,7 @@ var (
 	appName    string
 	domain     string
 	cookieName string
+	templates  *template.Template
 	config     *viper.Viper
 )
 
@@ -81,65 +86,85 @@ func main() {
 	}
 	log.SetOutput(filter)
 
-	app := iris.Default()
-	app.Logger().SetLevel(config.GetString("app.log.level"))
-	app.Logger().SetOutput(filter)
+	r := chi.NewRouter()
+	r.Use(middleware.Recoverer)
 
-	var runner iris.Runner
+	var server *http.Server
 	if *isDev {
-		runner = iris.Addr(":8080")
+		server = &http.Server{
+			Addr:    ":8080",
+			Handler: r,
+		}
 	} else {
 		if *privateKey == "" || *certificate == "" {
 			log.Fatalln("[ERROR] Failed to start web server: SSL certificate" +
 				" and/or private key are missing")
 		}
 
-		runner = iris.TLS(":443", *certificate, *privateKey)
+		cert, err := tls.LoadX509KeyPair(*certificate, *privateKey)
+		if err != nil {
+			log.Printf("[ERROR] Unable to parse X509 key pair: %s\n", err)
+			log.Fatalln("[ERROR] Failed to start web server")
+		}
+
+		server = &http.Server{
+			Addr: ":https",
+			TLSConfig: &tls.Config{
+				Certificates: []tls.Certificate{cert},
+			},
+			Handler: r,
+		}
 		log.Println("[INFO] Configured web server for SSL")
 	}
 
-	loadAssets(app, *isDev)
+	loadAssets(r, *isDev)
 
-	app.Get("/", HomeRenderer)
-	authRoutes(app)
+	r.Get("/", HomeRenderer)
+	authRoutes(r)
 
 	s := &hid.Stream{
 		Device: config.GetString("usb.hid_device"),
 	}
-	app.Get("api/keystrokes", s.WebsocketHandler())
+	r.Get("/api/keystrokes", s.WebsocketHandler)
 
 	images := &ImagesUploader{
 		UploadDir: config.GetString("images.upload_dir"),
 	}
-	app.Post("api/images", images.UploadHandler)
+	r.Post("/api/images", images.UploadHandler)
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch,
+		os.Interrupt,
+		syscall.SIGINT,
+		os.Kill,
+		syscall.SIGKILL,
+		syscall.SIGTERM,
+	)
 
 	go func() {
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch,
-			os.Interrupt,
-			syscall.SIGINT,
-			os.Kill,
-			syscall.SIGKILL,
-			syscall.SIGTERM,
-		)
-		select {
-		case <-ch:
+		for range ch {
 			log.Println("[INFO] Gracefully shutdown server")
 
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 			defer cancel()
-			if err := app.Shutdown(ctx); err != nil {
+			if err := server.Shutdown(ctx); err != nil {
 				log.Fatalf("[ERROR] Error during server shutdown: %s\n", err)
 			}
 
-			<-ctx.Done()
-			log.Println("[INFO] Server exited.")
+			for range ctx.Done() {
+				log.Println("[INFO] Server exited.")
+			}
 		}
 	}()
 
-	err = app.Run(runner, iris.WithoutInterruptHandler)
-	if err != nil {
-		log.Fatalf("[ERROR] Unable to start web server: %s\n", err)
+	if *isDev {
+		err = server.ListenAndServe()
+	} else {
+		err = server.ListenAndServeTLS("", "")
+	}
+
+	if err != nil && err != http.ErrServerClosed {
+		log.Fatalf("[ERROR] Error when starting server: %s\n", err)
 	}
 }
 
@@ -163,7 +188,7 @@ func loadConfig(path string) {
 	cookieName = config.GetString("app.cookie_name")
 }
 
-func authRoutes(r *iris.Application) {
+func authRoutes(r *chi.Mux) {
 	storeConfig := config.GetStringMapString("keys.store_config")
 	parsedStoreConfig := make(map[string]string)
 
@@ -206,30 +231,37 @@ func authRoutes(r *iris.Application) {
 		log.Panic(err)
 	}
 
-	r.Get("auth/login", LoginRenderer)
-	r.Post("auth/login", m.AuthHandler)
+	r.Get("/auth/login", LoginRenderer)
+	r.Post("/auth/login", m.AuthHandler)
 }
 
-func loadAssets(r *iris.Application, dev bool) *iris.Application {
+func loadAssets(r *chi.Mux, dev bool) {
 	webpack.FsPath = "./public"
 	webpack.WebPath = "/"
 	webpack.Plugin = "manifest"
 	webpack.Init(dev)
 
 	for i := 0; i < len(assetDirs); i++ {
-		r.StaticWeb(
-			fmt.Sprintf("/%s", assetDirs[i]),
-			fmt.Sprintf("./public/%s", assetDirs[i]),
+		server := http.FileServer(
+			http.Dir(fmt.Sprintf("./public/%s", assetDirs[i])),
+		)
+		handler := http.StripPrefix(fmt.Sprintf("/%s/", assetDirs[i]), server)
+
+		r.Get(
+			fmt.Sprintf("/%s/*", assetDirs[i]),
+			func(w http.ResponseWriter, r *http.Request) {
+				handler.ServeHTTP(w, r)
+			},
 		)
 	}
 
-	tmpl := iris.HTML("./assets", ".tmpl")
-	if dev {
-		tmpl.Reload(true)
+	var err error
+	templates = template.New("templates")
+	templates = templates.Funcs(map[string]interface{}{
+		"asset": webpack.AssetHelper,
+	})
+	templates, err = templates.ParseGlob("./assets/*.tmpl")
+	if err != nil {
+		log.Fatalf("[ERROR] Unable to parse view templates: %s\n", err)
 	}
-	tmpl.AddFunc("asset", webpack.AssetHelper)
-
-	r.RegisterView(tmpl)
-
-	return r
 }

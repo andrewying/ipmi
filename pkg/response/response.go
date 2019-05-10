@@ -18,25 +18,27 @@
 package response
 
 import (
-	"github.com/kataras/iris"
+	"encoding/json"
+	"html/template"
+	"io"
 	"log"
+	"net/http"
 )
 
 // JSON renders a JSON output.
-func JSON(c iris.Context, m iris.Map) {
-	_, err := c.JSON(m)
+func JSON(w http.ResponseWriter, status int, data interface{}) {
+	w.WriteHeader(status)
+
+	encoder := json.NewEncoder(w)
+	err := encoder.Encode(data)
 	if err != nil {
-		log.Printf("[ERROR] Unable to print JSON output: %s\n", err)
+		log.Printf("[ERROR] Unable to encode JSON output: %s\n", err)
 	}
 }
 
 // View compiles and renders view template.
-func View(c iris.Context, data map[string]string, tmpl string) {
-	for key, value := range data {
-		c.ViewData(key, value)
-	}
-
-	err := c.View(tmpl)
+func View(w io.Writer, template *template.Template, data map[string]string) {
+	err := template.Execute(w, data)
 	if err != nil {
 		log.Printf("[ERROR] Unable to render template: %s\n", err)
 	}

@@ -21,13 +21,12 @@ import (
 	"fmt"
 	"github.com/adsisto/adsisto/pkg/response"
 	"github.com/go-webpack/webpack/reader/manifest"
-	"github.com/kataras/iris"
 	"log"
 	"net/http"
 )
 
-func HomeRenderer(c iris.Context) {
-	if pusher, ok := c.ResponseWriter().(http.Pusher); !*isDev && ok {
+func HomeRenderer(w http.ResponseWriter, r *http.Request) {
+	if pusher, ok := w.(http.Pusher); !*isDev && ok {
 		assets, err := manifest.Read("./public")
 		if err != nil {
 			log.Print("Failed to push assets.")
@@ -36,19 +35,19 @@ func HomeRenderer(c iris.Context) {
 		pushAssets(pusher, assets)
 	}
 
-	response.View(c, map[string]string{
+	response.View(w, templates.Lookup("index.tmpl"), map[string]string{
 		"name":       appName,
 		"domain":     domain,
 		"cookieName": cookieName,
-	}, "index.tmpl")
+	})
 }
 
-func LoginRenderer(c iris.Context) {
-	response.View(c, map[string]string{
+func LoginRenderer(w http.ResponseWriter, r *http.Request) {
+	response.View(w, templates.Lookup("login.tmpl"), map[string]string{
 		"name":       fmt.Sprintf("Login - %s", appName),
 		"domain":     domain,
 		"cookieName": cookieName,
-	}, "login.tmpl")
+	})
 }
 
 func pushAssets(pusher http.Pusher, assets map[string][]string) {

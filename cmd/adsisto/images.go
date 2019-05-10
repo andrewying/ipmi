@@ -21,7 +21,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"github.com/adsisto/adsisto/pkg/response"
-	"github.com/kataras/iris"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -32,11 +31,10 @@ type ImagesUploader struct {
 	UploadDir string
 }
 
-func (h *ImagesUploader) UploadHandler(c iris.Context) {
-	file, header, err := c.FormFile("file")
+func (h *ImagesUploader) UploadHandler(w http.ResponseWriter, r *http.Request) {
+	file, header, err := r.FormFile("file")
 	if err != nil {
-		c.StatusCode(http.StatusBadRequest)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusBadRequest, map[string]string{
 			"error": fmt.Sprintf("Unable to process file: %s", err),
 		})
 		return
@@ -45,8 +43,7 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 	log.Printf("[INFO] Processing uploaded file %s\n", header.Filename)
 
 	if filepath.Ext(header.Filename) != "iso" {
-		c.StatusCode(http.StatusNotAcceptable)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusNotAcceptable, map[string]string{
 			"error": "File uploaded must be a .iso file",
 		})
 		return
@@ -54,8 +51,7 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
-		c.StatusCode(http.StatusBadRequest)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusBadRequest, map[string]string{
 			"error": fmt.Sprintf("Unable to process file: %s", err),
 		})
 		return
@@ -64,8 +60,7 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 	hash := sha256.New()
 	_, err = hash.Write(content)
 	if err != nil {
-		c.StatusCode(http.StatusInternalServerError)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusInternalServerError, map[string]string{
 			"error": "Unable to save file to server",
 		})
 		return
@@ -78,14 +73,13 @@ func (h *ImagesUploader) UploadHandler(c iris.Context) {
 	)
 	if err != nil {
 		log.Printf("[ERROR] Unable to save uploaded image file: %s\n", err)
-		c.StatusCode(http.StatusInternalServerError)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusInternalServerError, map[string]string{
 			"error": "Unable to save file to server",
 		})
 		return
 	}
 
-	response.JSON(c, iris.Map{
+	response.JSON(w, http.StatusOK, map[string]string{
 		"file": fmt.Sprintf("%s.iso", hash.Sum(nil)),
 	})
 }

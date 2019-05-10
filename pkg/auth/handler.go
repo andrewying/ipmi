@@ -18,10 +18,10 @@
 package auth
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/SermoDigital/jose/jws"
 	"github.com/adsisto/adsisto/pkg/response"
-	"github.com/kataras/iris"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"regexp"
@@ -36,46 +36,35 @@ var (
 	HeaderPattern = `Bearer ([A-Za-z0-9\-\._~\+\/]+=*)$`
 )
 
-func (m *JWTMiddleware) AuthHandler(c iris.Context) {
-	r := &authRequest{}
-	if err := c.ReadJSON(r); err != nil {
-		c.StatusCode(http.StatusBadRequest)
-		response.JSON(c, iris.Map{
+func (m *JWTMiddleware) AuthHandler(w http.ResponseWriter, r *http.Request) {
+	auth := &authRequest{}
+	decoder := json.NewDecoder(r.Body)
+
+	if err := decoder.Decode(auth); err != nil {
+		response.JSON(w, http.StatusBadRequest, map[string]interface{}{
 			"code":    http.StatusBadRequest,
 			"message": "invalid authentication request",
 		})
 		return
 	}
-	if err := validate.Struct(r); err != nil {
-		c.StatusCode(http.StatusBadRequest)
-		response.JSON(c, iris.Map{
+	if err := validate.Struct(auth); err != nil {
+		response.JSON(w, http.StatusBadRequest, map[string]interface{}{
 			"code":    http.StatusBadRequest,
 			"message": "invalid authentication request",
 		})
 		return
 	}
 
-	if err := c.ReadJSON(r); err != nil {
-		c.StatusCode(http.StatusBadRequest)
-		response.JSON(c, iris.Map{
-			"code":    http.StatusBadRequest,
-			"message": "invalid authentication request",
-		})
-		return
-	}
-
-	auth, err := m.ValidateAuthnRequest(r.Token)
+	valid, err := m.ValidateAuthnRequest(auth.Token)
 	if err != nil {
 		switch err {
 		case ErrInvalidToken:
-			c.StatusCode(http.StatusBadRequest)
-			response.JSON(c, iris.Map{
+			response.JSON(w, http.StatusBadRequest, map[string]interface{}{
 				"code":    http.StatusBadRequest,
 				"message": "invalid JWT",
 			})
 		default:
-			c.StatusCode(http.StatusInternalServerError)
-			response.JSON(c, iris.Map{
+			response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
 				"code":    http.StatusInternalServerError,
 				"message": fmt.Sprint(err),
 			})
@@ -84,9 +73,8 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 		return
 	}
 
-	if !auth {
-		c.StatusCode(http.StatusUnauthorized)
-		response.JSON(c, iris.Map{
+	if !valid {
+		response.JSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"code":    http.StatusUnauthorized,
 			"message": "unauthenticated",
 		})
@@ -95,64 +83,64 @@ func (m *JWTMiddleware) AuthHandler(c iris.Context) {
 
 	session, err := m.GetSessionToken()
 	if err != nil {
-		c.StatusCode(http.StatusInternalServerError)
-		response.JSON(c, iris.Map{
+		response.JSON(w, http.StatusInternalServerError, map[string]interface{}{
 			"code":    http.StatusInternalServerError,
 			"message": fmt.Sprint(err),
 		})
 		return
 	}
 
-	response.JSON(c, iris.Map{
+	response.JSON(w, http.StatusOK, map[string]interface{}{
 		"code":  http.StatusOK,
 		"token": session,
 	})
 }
 
-func (m *JWTMiddleware) Authenticated(c iris.Context) {
-	t := c.GetHeader("Authorization")
+func (m *JWTMiddleware) Authenticated(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t := r.Header.Get("Authorization")
 
-	cookie := c.GetCookie(m.CookieName)
+		cookie, _ := r.Cookie(m.CookieName)
 
-	if t == "" && cookie == "" {
-		c.Redirect("/auth/login", http.StatusTemporaryRedirect)
-		return
-	}
-
-	var jwt string
-
-	if t != "" {
-		pattern := regexp.MustCompile(HeaderPattern)
-		match := pattern.FindStringSubmatch(t)
-		if len(match) == 0 {
-			m.Unauthorised(http.StatusBadRequest, c)
+		if t == "" && cookie.String() == "" {
+			http.Redirect(w, r, "/auth/login", http.StatusTemporaryRedirect)
 			return
 		}
 
-		jwt = match[0]
-	} else {
-		jwt = cookie
-	}
+		var jwt string
 
-	token, err := jws.ParseJWT([]byte(jwt))
-	if err != nil {
-		m.Unauthorised(http.StatusBadRequest, c)
-		return
-	}
+		if t != "" {
+			pattern := regexp.MustCompile(HeaderPattern)
+			match := pattern.FindStringSubmatch(t)
+			if len(match) == 0 {
+				m.Unauthorised(http.StatusBadRequest, w)
+				return
+			}
 
-	claims := token.Claims()
-	if claims.Get("iat") == nil || claims.Get("exp") == nil ||
-		claims.Get("sub") == nil {
-		m.Unauthorised(http.StatusForbidden, c)
-		return
-	}
+			jwt = match[0]
+		} else {
+			jwt = cookie.String()
+		}
 
-	status, err := m.ValidateSessionToken(token)
-	if err != nil || !status {
-		m.Unauthorised(http.StatusForbidden, c)
-		return
-	}
+		token, err := jws.ParseJWT([]byte(jwt))
+		if err != nil {
+			m.Unauthorised(http.StatusBadRequest, w)
+			return
+		}
 
-	c.Values().SetImmutable("authKey", claims)
-	c.Next()
+		claims := token.Claims()
+		if claims.Get("iat") == nil || claims.Get("exp") == nil ||
+			claims.Get("sub") == nil {
+			m.Unauthorised(http.StatusForbidden, w)
+			return
+		}
+
+		status, err := m.ValidateSessionToken(token)
+		if err != nil || !status {
+			m.Unauthorised(http.StatusForbidden, w)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

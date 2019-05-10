@@ -19,11 +19,10 @@ package hid
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/websocket"
+	"github.com/gorilla/websocket"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -44,24 +43,24 @@ type StreamMessage struct {
 
 // WebsocketHandler sets up a WebSocket instance for receiving keystrokes events
 // from the client.
-func (s *Stream) WebsocketHandler() context.Handler {
-	ws := websocket.New(websocket.Config{})
-	ws.OnConnection(s.receiveInput)
+func (s *Stream) WebsocketHandler(w http.ResponseWriter, r *http.Request) {
+	upgrader := websocket.Upgrader{}
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		panic(err)
+	}
 
-	return ws.Handler()
-}
-
-func (s *Stream) receiveInput(c websocket.Connection) {
 	file, err := os.Create(s.Device)
 	if err != nil {
 		panic(err)
 	}
+
+	defer ws.Close()
 	defer file.Close()
 
-	message := StreamMessage{}
-
-	c.OnMessage(func(data []byte) {
-		err := json.Unmarshal(data, message)
+	for {
+		message := StreamMessage{}
+		err := ws.ReadJSON(message)
 		if err != nil {
 			log.Print(err)
 		}
@@ -78,5 +77,5 @@ func (s *Stream) receiveInput(c websocket.Connection) {
 				log.Print(err)
 			}
 		}
-	})
+	}
 }
