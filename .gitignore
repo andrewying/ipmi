@@ -1,12 +1,9 @@
 .DS_Store
 yarn-error.log
-manifest.json
 
-.idea
-data
-keys
-node_modules
-public/css
-public/fonts
-public/js
-public/images
+.idea/*
+data/*
+keys/*
+node_modules/*
+public/*
+!*/.gitkeep
