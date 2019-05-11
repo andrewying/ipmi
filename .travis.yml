@@ -22,6 +22,8 @@ git:
 notifications:
   email: false
 
+install: true
+
 script:
   - go test -v -race -coverprofile=../coverage.txt -covermode=atomic ./...
 
