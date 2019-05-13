@@ -1,11 +1,13 @@
 {
     "env": {
         "browser": true,
+        "node": true,
         "es6": true
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:security/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -19,7 +21,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "security"
     ],
     "rules": {
         "indent": [
