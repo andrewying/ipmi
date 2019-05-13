@@ -67,6 +67,6 @@
     "webpack-manifest-plugin": "^2.0.4"
   },
   "dependencies": {
-    "open": "^6.2.0"
+    "open": "^6.3.0"
   }
 }
