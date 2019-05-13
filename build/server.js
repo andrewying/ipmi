@@ -19,6 +19,8 @@ const path = require('path');
 const { exec } = require('child_process');
 const open = require('open');
 
+/* eslint no-console: 0 */
+
 function run() {
     let server = exec('go run ./cmd/adsisto -dev',{
         cwd: path.resolve(__dirname, '../')
@@ -43,7 +45,7 @@ function run() {
 }
 
 function build(variables) {
-    exec(`go build ./cmd/adsisto -o ./bin/adsisto ${getArgs(variables)}`,{
+    exec(`go build -o ./bin/adsisto ${getArgs(variables)} ./cmd/adsisto`,{
         cwd: path.resolve(__dirname, '../')
     }, (error, stdout, stderr) => {
         if (error) {

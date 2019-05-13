@@ -24,70 +24,72 @@ let compiler;
 let server;
 let lastHash = null;
 
-function run(env, cb) {
-    process.env.NODE_ENV = env;
-    const production = env === 'production';
+/* eslint no-console: 0 */
 
-    try {
-        compiler = Webpack(config);
-    } catch (err) {
-        console.error(err.message);
-        process.exit(1);
-        return;
+function run(env, cb) {
+  process.env.NODE_ENV = env;
+  const production = env === 'production';
+
+  try {
+    compiler = Webpack(config);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+    return;
+  }
+
+  compiler.run(function(err, stats) {
+    if (compiler.close) {
+      compiler.close(err2 => {
+        callback(err || err2, stats);
+      });
+    } else {
+      callback(err, stats);
     }
 
-    compiler.run(function (err, stats) {
-        if (compiler.close) {
-            compiler.close(err2 => {
-                callback(err || err2, stats);
-            });
-        } else {
-            callback(err, stats);
-        }
+    if (!production) {
+      compiler.watch(config.watch, callback);
+      console.log('[WEBPACK]'.bgBlue.white + ' Asset builder started...');
+    }
 
-        if (!production) {
-            compiler.watch(config.watch, callback);
-            console.log('[WEBPACK]'.bgBlue.white + ' Asset builder started...');
-        }
-
-        cb();
-    });
+    cb();
+  });
 }
 
 function callback(err, stats) {
-    if (!config.watch || err) {
-        compiler.purgeInputFileSystem();
+  if (!config.watch || err) {
+    compiler.purgeInputFileSystem();
+  }
+
+  if (err) {
+    lastHash = null;
+    console.error('[WEBPACK]'.bgBlue.white + ` ${ err.stack || err }`);
+
+    if (server) server.kill();
+    process.exit(1);
+  }
+
+  if (stats.hash !== lastHash) {
+    lastHash = stats.hash;
+    if (stats.compilation && stats.compilation.errors.length !== 0) {
+      const errors = stats.compilation.errors;
+      if (errors[0].name === 'EntryModuleNotFoundError') {
+        console.error('\n' + '[WEBPACK]'.bgBlue.white +
+          ' Insufficient number of arguments or no entry found.'.red);
+      }
     }
 
-    if (err) {
-        lastHash = null;
-        console.error('[WEBPACK]'.bgBlue.white + ` ${ err.stack || err }`);
-
-        if (server) server.kill();
-        process.exit(1);
-    }
-
-    if (stats.hash !== lastHash) {
-        lastHash = stats.hash;
-        if (stats.compilation && stats.compilation.errors.length !== 0) {
-            const errors = stats.compilation.errors;
-            if (errors[0].name === "EntryModuleNotFoundError") {
-                console.error("\n" + "[WEBPACK]".bgBlue.white +
-                    " Insufficient number of arguments or no entry found.".red);
-            }
-        }
-
-        const statsString = stats.toString({
-            _env: process.env.NODE_ENV,
-            cached: false,
-            cachedAssets: false,
-            children: false,
-            chunks: false,
-            colors: true,
-            exclude: ["node_modules", "bower_components", "components"]
-        });
-        if (statsString) console.log('[WEBPACK]'.bgBlue.white + ` ${ statsString }\n`);
-    }
+    const statsString = stats.toString({
+      _env: process.env.NODE_ENV,
+      cached: false,
+      cachedAssets: false,
+      children: false,
+      chunks: false,
+      colors: true,
+      exclude: [ 'node_modules', 'bower_components', 'components' ],
+    });
+    if (statsString) console.log('[WEBPACK]'.bgBlue.white + ` ${ statsString }\n`);
+  }
 }
 
 module.exports = run;

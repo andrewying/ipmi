@@ -30,56 +30,58 @@ let commit;
 
 let server;
 
-process.on('SIGTERM', function () {
-    console.log('Gracefully shutting down...'.green);
+/* eslint no-console: 0 */
 
-    if (server) server.kill();
-    process.exit(0);
+process.on('SIGTERM', function() {
+  console.log('Gracefully shutting down...'.green);
+
+  if (server) server.kill();
+  process.exit(0);
 });
 
 program
-    .version(version)
-    .option('-e, --env [env]', 'set build environment', 'development')
-    .parse(process.argv);
+  .version(version)
+  .option('-e, --env [env]', 'set build environment', 'development')
+  .parse(process.argv);
 
-console.log(` ${emoji.get('package')} Adsisto Build Script `.bgMagenta.green);
+console.log(` ${ emoji.get('package') } Adsisto Build Script `.bgMagenta.green);
 
 git.Repository
-    .open(path.resolve(__dirname, '../'))
-    .then(function (repo) {
-        repo.getHeadCommit()
-            .then(function (res) {
-                commit = res.id().tostrS();
-                console.log(`Commit: ${ commit }\n`.green);
+  .open(path.resolve(__dirname, '../'))
+  .then(function(repo) {
+    repo.getHeadCommit()
+      .then(function(res) {
+        commit = res.id().tostrS();
+        console.log(`Commit: ${ commit }\n`.green);
 
-                assetCompiler(program.env, function () {
-                    if (program.env !== 'production') {
-                        server = Server.run();
-                    } else {
-                        Server.build({
-                            version: version,
-                            commit: commit
-                        });
-
-                        console.log(`${emoji.get('white_check_mark')} Successfully built binaries.`.green);
-                        process.exit(0);
-                    }
-                });
-            })
-            .catch(function (error) {
-                console.error(
-                    `${emoji.get('exclamation')} Unable to get current commit`.bold.red,
-                    '\n',
-                    error.toString()
-                );
-                process.exit(1);
+        assetCompiler(program.env, function() {
+          if (program.env !== 'production') {
+            server = Server.run();
+          } else {
+            Server.build({
+              version: version,
+              commit: commit,
             });
-    })
-    .catch(function (error) {
+
+            console.log(`${ emoji.get('white_check_mark') } Successfully built binaries.`.green);
+            process.exit(0);
+          }
+        });
+      })
+      .catch(function(error) {
         console.error(
-            `${emoji.get('exclamation')} Local directory is not a valid Git repository`.bold.red,
-            '\n',
-            error.toString()
+          `${ emoji.get('exclamation') } Unable to get current commit`.bold.red,
+          '\n',
+          error.toString(),
         );
         process.exit(1);
-    });
+      });
+  })
+  .catch(function(error) {
+    console.error(
+      `${ emoji.get('exclamation') } Local directory is not a valid Git repository`.bold.red,
+      '\n',
+      error.toString(),
+    );
+    process.exit(1);
+  });

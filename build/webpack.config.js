@@ -15,128 +15,128 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-const path = require("path");
-const webpack = require("webpack");
-const ManifestPlugin = require("webpack-manifest-plugin");
+const path = require('path');
+const webpack = require('webpack');
+const ManifestPlugin = require('webpack-manifest-plugin');
 
-const ExtractCssChunks = require("extract-css-chunks-webpack-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const ExtractCssChunks = require('extract-css-chunks-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
-const production = process.env.NODE_ENV === "production";
+const production = process.env.NODE_ENV === 'production';
 
 let config = {
-    mode: production ? "production" : "development",
-    context: path.resolve(__dirname, "../assets"),
-    entry: {
-        app: "./index.js",
-        login: "./login.js",
-    },
-    output: {
-        path: path.join(__dirname, "../public"),
-        filename: production ? "js/[name]-[chunkhash].js" : "js/[name].js",
-        chunkFilename: production ? "js/[name]-[chunkhash].js" : "js/[name].js",
-    },
-    module: {
-        rules: [
-            {
-                test: /\.jsx?$/,
-                use: {
-                    loader: "babel-loader",
-                    options: {
-                        "presets": ["@babel/preset-env", "@babel/preset-react"],
-                        "plugins": [
-                            ["@babel/plugin-proposal-decorators", { "legacy": true }],
-                            "@babel/plugin-proposal-class-properties"
-                        ]
-                    }
-                },
-                exclude: /node_modules/
+  mode: production ? 'production' : 'development',
+  context: path.resolve(__dirname, '../assets'),
+  entry: {
+    app: './index.js',
+    login: './login.js',
+  },
+  output: {
+    path: path.join(__dirname, '../public'),
+    filename: production ? 'js/[name]-[chunkhash].js' : 'js/[name].js',
+    chunkFilename: production ? 'js/[name]-[chunkhash].js' : 'js/[name].js',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            'presets': [ '@babel/preset-env', '@babel/preset-react' ],
+            'plugins': [
+              [ '@babel/plugin-proposal-decorators', { 'legacy': true } ],
+              '@babel/plugin-proposal-class-properties',
+            ],
+          },
+        },
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.(jpe?g|png|gif|ttf|svg)$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            context: path.resolve(__dirname, '../assets'),
+            name: '[path][name].[ext]',
+          },
+        },
+      },
+      {
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          {
+            loader: ExtractCssChunks.loader,
+            options: {
+              hot: !production,
             },
-            {
-                test: /\.(jpe?g|png|gif|ttf|svg)$/,
-                use: {
-                    loader: "file-loader",
-                    options: {
-                        context: path.resolve(__dirname, "../assets"),
-                        name: '[path][name].[ext]',
-                    },
-                }
+          },
+          'css-loader?url=false',
+          {
+            loader: 'postcss-loader',
+            options: {
+              config: {
+                path: __dirname,
+              },
             },
-            {
-                test: /\.(sa|sc|c)ss$/,
-                use: [
-                    {
-                        loader: ExtractCssChunks.loader,
-                        options: {
-                            hot: !production
-                        }
-                    },
-                    "css-loader?url=false",
-                    {
-                        loader: "postcss-loader",
-                        options: {
-                            config: {
-                                path: __dirname,
-                            }
-                        }
-                    },
-                    "sass-loader"
-                ]
-            },
-        ]
-    },
-    resolve: {
-        extensions: ['.js', '.jsx', '.css', '.scss'],
-        alias: {
-            "~": path.resolve(__dirname, "../node_modules")
-        }
-    },
-    plugins: [
-        new webpack.ProvidePlugin({
-            fetch: "exports-loader?self.fetch!whatwg-fetch/dist/fetch.umd"
-        }),
-        new ExtractCssChunks(
-            {
-                filename: production ? "css/[name]-[chunkhash].css" : "css/[name].css",
-                chunkfilename: production ? "css/[name]-[id].css" : "css/[name].css"
-            }
-        ),
-        new ManifestPlugin({
-            writeToFileEmit: true,
-        }),
+          },
+          'sass-loader',
+        ],
+      },
     ],
-    optimization: {
-        minimize: production,
-        splitChunks: {
-            cacheGroups: {
-                default: false,
-                vendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: "vendor",
-                    chunks: "initial",
-                    enforce: true
-                }
-            }
-        }
-    }
+  },
+  resolve: {
+    extensions: [ '.js', '.jsx', '.css', '.sass', '.scss' ],
+    alias: {
+      '~': path.resolve(__dirname, '../node_modules'),
+    },
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      fetch: 'exports-loader?self.fetch!whatwg-fetch/dist/fetch.umd',
+    }),
+    new ExtractCssChunks(
+      {
+        filename: production ? 'css/[name]-[chunkhash].css' : 'css/[name].css',
+        chunkfilename: production ? 'css/[name]-[id].css' : 'css/[name].css',
+      },
+    ),
+    new ManifestPlugin({
+      writeToFileEmit: true,
+    }),
+  ],
+  optimization: {
+    minimize: production,
+    splitChunks: {
+      cacheGroups: {
+        default: false,
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendor',
+          chunks: 'initial',
+          enforce: true,
+        },
+      },
+    },
+  },
 };
 
 if (production) {
-    config.plugins.push(
-        new webpack.DefinePlugin({
-            "process.env": { NODE_ENV: JSON.stringify("production") }
-        })
-    );
-    config.minimizer.push(new UglifyJsPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: true
-    }));
+  config.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env': { NODE_ENV: JSON.stringify('production') },
+    }),
+  );
+  config.minimizer.push(new UglifyJsPlugin({
+    cache: true,
+    parallel: true,
+    sourceMap: true,
+  }));
 } else {
-    config.plugins.push(
-        new webpack.NamedModulesPlugin(),
-    );
-    config.devtool = "source-map";
+  config.plugins.push(
+    new webpack.NamedModulesPlugin(),
+  );
+  config.devtool = 'source-map';
 }
 
 module.exports = config;
