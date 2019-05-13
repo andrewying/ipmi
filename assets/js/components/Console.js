@@ -15,92 +15,92 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from "react";
-import keydown, { ALL_KEYS } from "react-keydown";
-import Websocket from "react-websocket";
+import React from 'react';
+import keydown, { ALL_KEYS } from 'react-keydown';
+import Websocket from 'react-websocket';
 
 class Console extends React.Component {
-    prohibitedKeys = [
-        "Copy",
-        "Cut",
-        "Paste",
-        "Undo",
-        "Redo"
-    ];
+  prohibitedKeys = [
+    'Copy',
+    'Cut',
+    'Paste',
+    'Undo',
+    'Redo',
+  ];
 
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props);
 
-        this.state = {
-            connected: false,
-            ws: false
-        };
-        this.handleOpen = this.handleOpen.bind(this);
-        this.handleClose = this.handleClose.bind(this);
+    this.state = {
+      connected: false,
+      ws: false,
+    };
+    this.handleOpen = this.handleOpen.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+  }
+
+  handleOpen() {
+    this.setState({
+      ws: true,
+    });
+  }
+
+  handleClose() {
+    this.setState({
+      ws: false,
+    });
+  }
+
+  @keydown(ALL_KEYS)
+  handleKeys(e) {
+    if (this.prohibitedKeys.includes(e.key)) {
+      alert('Special keys are not currently supported!');
+      return;
     }
 
-    handleOpen() {
-        this.setState({
-            ws: true
-        })
+    if (!this.state.ws) {
+      alert('Connection to remote Websocket server in progress... Please try again.');
+      return;
     }
 
-    handleClose() {
-        this.setState({
-            ws: false
-        })
-    }
+    const message = {
+      key: e.key,
+      shift: e.shiftKey,
+      ctrl: e.ctrlKey,
+      alt: e.altKey,
+      meta: e.metaKey,
+    };
+    this.refWebSocket.sendMessage(JSON.stringify(message));
+  }
 
-    @keydown(ALL_KEYS)
-    handleKeys(e) {
-        if (this.prohibitedKeys.includes(e.key)) {
-            alert("Special keys are not currently supported!");
-            return;
-        }
+  render() {
+    let url = 'ws://' + window.domain + '/api/keystrokes';
 
-        if (!this.state.ws) {
-            alert("Connection to remote Websocket server in progress... Please try again.");
-            return;
-        }
-
-        const message = {
-            key: e.key,
-            shift: e.shiftKey,
-            ctrl: e.ctrlKey,
-            alt: e.altKey,
-            meta: e.metaKey
-        };
-        this.refWebSocket.sendMessage(JSON.stringify(message));
-    }
-
-    render() {
-        let url = "ws://" + window.domain + "/api/keystrokes";
-
-        return (
-            <div>
-                <Websocket url={ url } onMessage={ (m) => {} }
-                           onOpen={ this.handleOpen } onClose={ this.handleClose }
-                           reconnect={ true } debug={ false }
-                           ref={ Websocket => {
-                               this.refWebSocket = Websocket;
-                           } }/>
-                <p>
-                    <strong>Status:</strong> Connecting...
-                </p>
-                <div className="console__container">
-                    <video className="console" />
-                    { this.state.connected ? "" : <div className="console__overlay">
-                        <h2>Connecting to Remote Machine</h2>
-                        <h2 className="console__loading_container">
-                            <span className="console__loading">●</span>
-                            <span className="console__loading">●</span>
-                            <span className="console__loading">●</span>
-                        </h2>
-                    </div> }
-                </div>
-            </div>
-        )
-    }
+    return (
+      <div>
+        <Websocket url={ url } onMessage={ (m) => {} }
+                   onOpen={ this.handleOpen } onClose={ this.handleClose }
+                   reconnect={ true } debug={ false }
+                   ref={ Websocket => {
+                     this.refWebSocket = Websocket;
+                   } }/>
+        <p>
+          <strong>Status:</strong> Connecting...
+        </p>
+        <div className="console__container">
+          <video className="console"/>
+          { this.state.connected ? '' : <div className="console__overlay">
+            <h2>Connecting to Remote Machine</h2>
+            <h2 className="console__loading_container">
+              <span className="console__loading">●</span>
+              <span className="console__loading">●</span>
+              <span className="console__loading">●</span>
+            </h2>
+          </div> }
+        </div>
+      </div>
+    );
+  }
 }
 
 export default Console;

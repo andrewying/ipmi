@@ -15,6 +15,6 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export const REQUEST_STATE = "REQUEST_STATE";
-export const RECEIVE_STATE = "RECEIVE_STATE";
-export const FETCH_STATE_ERROR = "FETCH_STATE_ERROR";
+export const REQUEST_STATE = 'REQUEST_STATE';
+export const RECEIVE_STATE = 'RECEIVE_STATE';
+export const FETCH_STATE_ERROR = 'FETCH_STATE_ERROR';

@@ -15,62 +15,64 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import ReactTable from "react-table";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import ReactTable from 'react-table';
 
-function Accounts(props) {
-    const [ loading, setLoading ] = useState(true);
-    const [ accounts, setAccounts ] = useState([]);
-    const [ errors, setErrors ] = useState([]);
+function Accounts() {
+  const [ loading, setLoading ] = useState(true);
+  const [ accounts, setAccounts ] = useState([]);
+  const [ error, setError ] = useState('');
 
-    const columns = [
-        {
-            Header: 'Email',
-            accessor: 'accessor'
+  const columns = [
+    {
+      Header: 'Email',
+      accessor: 'identity',
+    }, {
+      Header: 'Access Level',
+      accessor: 'accessLevel',
+    },
+  ];
+
+  const loadAccounts = () => {
+    fetch('/api/keys', {
+      credentials: 'same-origin',
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.code === 200) {
+          setAccounts(res.keys);
+          setLoading(false);
+          return;
         }
-    ];
 
-    const loadAccounts = () => {
-        fetch('/api/accounts', {
-            credentials: "same-origin",
-        })
-            .then(res => res.json())
-            .then(res => {
-                if (res.code === 200) {
-                    setAccounts(res.accounts);
-                    setLoading(false);
-                    return;
-                }
+        setError(res.message);
+        setLoading(false);
+      });
+  };
 
-                setLoading(false);
-            });
-    };
+  useEffect(() => {
+    loadAccounts();
+  });
 
-    useEffect(() => {
-        loadAccounts();
-    });
-
-    return (
-        <div>
-            <h2>Accounts</h2>
-            { errors.length !== 0 ? <div className="alert alert-danger">
-                <p><strong>The following errors occurred while retrieving the list of accounts:</strong></p>
-                <ul>
-                    { errors.map(error => <li>{ error }</li>) }
-                </ul>
-            </div> : "" }
-            <Link to="/accounts/create" className="btn btn-primary">Create</Link>
-            { loading ? <p>Loading...</p> : <ReactTable columns={ columns } data={ accounts } /> }
-        </div>
-    )
+  return (
+    <div>
+      <h2>Accounts</h2>
+      { error !== '' ? <div className="alert alert-danger">
+        <p><strong>{ error }</strong></p>
+      </div> : '' }
+      <Link to="/accounts/new" className="btn btn-primary">Create</Link>
+      { loading ? <p>Loading...</p> : <ReactTable columns={ columns } data={ accounts }/> }
+    </div>
+  );
 }
 
 const mapStateToProps = state => {
-    return {
-        email: state.email
-    }
+  return {
+    email: state.email,
+    accessLevel: state.accessLevel,
+  };
 };
 
 export default connect(mapStateToProps)(Accounts);

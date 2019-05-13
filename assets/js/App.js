@@ -15,57 +15,57 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import "@babel/polyfill";
+import '@babel/polyfill';
 
-import React from "react";
-import ReactDOM from "react-dom";
-import { HashRouter as Router, Route } from "react-router-dom";
-import { createStore } from "redux";
-import { Provider } from "react-redux";
-import { useCookies } from "react-cookie";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { HashRouter as Router, Route } from 'react-router-dom';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import { useCookies } from 'react-cookie';
 
-import Header from "./partials/Header";
-import Sidebar from "./partials/Sidebar";
-import About from "./components/About";
-import Accounts from "./components/Accounts";
-import Console from "./components/Console";
-import CreateAccount from "./components/CreateAccout";
-import Images from "./components/Images";
-import app from "./reducers";
+import Header from './partials/Header';
+import Sidebar from './partials/Sidebar';
+import About from './components/About';
+import Accounts from './components/Accounts';
+import Console from './components/Console';
+import CreateAccount from './components/CreateAccout';
+import Images from './components/Images';
+import app from './reducers';
 
 function App() {
-    const [ cookie, setCookie, removeCookie ] = useCookies([window.cookieName]);
-    // if (!cookie) {
-    //    window.location.replace("/auth/login");
-    //    return "";
-    // }
+  const [ cookie, setCookie, removeCookie ] = useCookies([ window.cookieName ]);
+  // if (!cookie) {
+  //    window.location.replace("/auth/login");
+  //    return "";
+  // }
 
-    return (
-        <div>
-            <Header />
-            <Router>
-                <div className="container">
-                    <Sidebar />
-                    <main className="content">
-                        <Route path="/" exact component={ Console } />
-                        <Route path="/about" component={ About } />
-                        <Route path="/accounts" exact component={ Accounts } />
-                        <Route path="/accounts/create" component={ CreateAccount } />
-                        <Route path="/console" component={ Console } />
-                        <Route path="/images" component={ Images } />
-                    </main>
-                </div>
-            </Router>
+  return (
+    <div>
+      <Header/>
+      <Router>
+        <div className="container">
+          <Sidebar/>
+          <main className="content">
+            <Route path="/" exact component={ Console }/>
+            <Route path="/about" component={ About }/>
+            <Route path="/accounts" exact component={ Accounts }/>
+            <Route path="/accounts/new" component={ CreateAccount }/>
+            <Route path="/console" component={ Console }/>
+            <Route path="/images" component={ Images }/>
+          </main>
         </div>
-    )
+      </Router>
+    </div>
+  );
 }
 
 const store = createStore(app);
-const MOUNT_NODE = document.getElementById("app");
+const MOUNT_NODE = document.getElementById('app');
 
 ReactDOM.render(
-    <Provider store={store}>
-        <App />
-    </Provider>,
-    MOUNT_NODE,
+  <Provider store={ store }>
+    <App/>
+  </Provider>,
+  MOUNT_NODE,
 );

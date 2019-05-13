@@ -15,53 +15,53 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from "react";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import config from "../../../package.json";
+import config from '../../../package.json';
 
 function Sidebar(props) {
-    const menuItems = [
-        {
-            text: 'Console',
-            link: '/console',
-            accessLevel: 0,
-        }, {
-            text: 'Virtual Images',
-            link: '/images',
-            accessLevel: 0,
-        }, {
-            text: 'Accounts',
-            link: '/accounts',
-            accessLevel: 100,
-        }, {
-            text: 'About',
-            link: '/about',
-            accessLevel: 0,
-        }
-    ];
+  const menuItems = [
+    {
+      text: 'Console',
+      link: '/console',
+      accessLevel: 0,
+    }, {
+      text: 'Virtual Images',
+      link: '/images',
+      accessLevel: 0,
+    }, {
+      text: 'Accounts',
+      link: '/accounts',
+      accessLevel: 100,
+    }, {
+      text: 'About',
+      link: '/about',
+      accessLevel: 0,
+    },
+  ];
 
-    return (
-        <nav className="sidebar">
-            <ul className="sidebar__menu">
-                { menuItems.map(item => props.accessLevel >= item.accessLevel ? <li>
-                    <Link to={ item.link }>{ item.text }</Link>
-                </li> : '') }
-            </ul>
-            <div className="info">
-                <span className="text-description">
-                    Adsisto v{ config.version }
-                </span>
-            </div>
-        </nav>
-    );
+  return (
+    <nav className="sidebar">
+      <ul className="sidebar__menu">
+        { menuItems.map(item => props.accessLevel >= item.accessLevel ? <li>
+          <Link to={ item.link }>{ item.text }</Link>
+        </li> : '') }
+      </ul>
+      <div className="info">
+        <span className="text-description">
+          Adsisto v{ config.version }
+        </span>
+      </div>
+    </nav>
+  );
 }
 
 const mapStateToProps = state => {
-    return {
-        accessLevel: state.accessLevel
-    }
+  return {
+    accessLevel: state.accessLevel,
+  };
 };
 
 export default connect(mapStateToProps)(Sidebar);
