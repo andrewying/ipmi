@@ -15,8 +15,8 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import "./fonts";
-import "./css/app";
+import './fonts';
+import './css/app';
 
-import "keypress";
-import "./js/App";
+import 'keypress';
+import './js/App';

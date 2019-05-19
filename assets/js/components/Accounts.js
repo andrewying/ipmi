@@ -58,12 +58,12 @@ function Accounts() {
 
   return (
     <div>
-      <h2>Accounts</h2>
+      <h1 className="font-bold my-2 text-2xl">Accounts</h1>
       { error !== '' ? <div className="alert alert-danger">
         <p><strong>{ error }</strong></p>
       </div> : '' }
-      <Link to="/accounts/new" className="btn btn-primary">Create</Link>
-      { loading ? <p>Loading...</p> : <ReactTable columns={ columns } data={ accounts }/> }
+      <Link to="/accounts/new" className="btn btn-primary mb-4">Create</Link>
+      { loading ? <p className="text-gray-800">Loading...</p> : <ReactTable columns={ columns } data={ accounts }/> }
     </div>
   );
 }

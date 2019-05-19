@@ -16,11 +16,11 @@
  */
 
 module.exports = {
-  plugins: {
-    'postcss-import': {},
-    'postcss-preset-env': {
+  plugins: [
+    require('postcss-import'),
+    require('tailwindcss')('./assets/css/theme.config.js'),
+    require('postcss-preset-env')({
       browsers: 'last 2 versions',
-    },
-    autoprefixer: {},
-  },
+    }),
+  ],
 };

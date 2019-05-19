@@ -44,11 +44,11 @@ function Images() {
   const filesList = () => {
     let array = Object.values(files);
 
-    return <div className="images__files">
+    return <div className="py-2 text-left w-full">
       <p><strong>Files</strong></p>
-      { array.map(entry => <div className="images__file" key={ entry.file }>
-        <span>{ entry.file }</span>
-        <progress max="100" value={ entry.progress }/>
+      { array.map(entry => <div className="flex mb-1 w-full" key={ entry.file }>
+        <span className="w-1/4">{ entry.file }</span>
+        <progress className="mr-4 w-1/2" max="100" value={ entry.progress }/>
         <div>{ statusIcon(entry.status) }</div>
       </div>) }
     </div>;
@@ -165,12 +165,12 @@ function Images() {
   });
 
   return (
-    <div className="images__container">
-      { images.length !== 0 ? <div className="images__list">
+    <div className="flex">
+      { images.length !== 0 ? <div className="border border-solid flex-grow m-4 ml-0 px-4 py-5 rounded-lg images__list">
         <strong>Uploaded Images</strong>
         <div>
           { images.map(image =>
-            <div className="images__item" data-selected={ image.file === selectedImage
+            <div className="mt-3 p-2 images__item" data-selected={ image.file === selectedImage
               ? '1' : '0' } data-value={ image.file } onClick={ () =>
               selectImage(image.file) }>
               { image.name }
@@ -179,7 +179,7 @@ function Images() {
         </div>
         <button className="btn btn-primary mt-2">Load</button>
       </div> : '' }
-      <div className="images__drop_container">
+      <div className="relative images__drop_container">
         { errors.length !== 0 ? <div className="alert alert-danger">
           <p><strong>The following errors occurred while uploading the image files:</strong>
           </p>
@@ -187,7 +187,7 @@ function Images() {
             { errors.map(error => <li>{ error }</li>) }
           </ul>
         </div> : '' }
-        <div className={ isDragActive ? 'images images__active' : 'images' }>
+        <div className={ isDragActive ? 'my-4 rounded-lg images images__active' : 'my-4 rounded-lg images' }>
           <div { ...getRootProps({ className: 'images__drop' }) }>
             <input { ...getInputProps({ name: 'images' }) } />
             { Object.keys(files).length !== 0 ? filesList(files) : <h3>Select Files</h3> }

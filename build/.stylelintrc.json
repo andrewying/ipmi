@@ -22,6 +22,7 @@
         "function-url-quotes": "always",
         "font-family-name-quotes": "always-where-recommended",
         "comment-whitespace-inside": "always",
+        "at-rule-no-unknown": null,
         "at-rule-no-vendor-prefix": true,
         "rule-empty-line-before": "always-multi-line",
         "selector-pseudo-class-parentheses-space-inside": "never",

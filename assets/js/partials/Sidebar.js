@@ -44,12 +44,12 @@ function Sidebar(props) {
 
   return (
     <nav className="sidebar">
-      <ul className="sidebar__menu">
+      <ul className="sidebar-menu">
         { menuItems.map(item => props.accessLevel >= item.accessLevel ? <li>
           <Link to={ item.link }>{ item.text }</Link>
         </li> : '') }
       </ul>
-      <div className="info">
+      <div className="px-2 py-4">
         <span className="text-description">
           Adsisto v{ config.version }
         </span>

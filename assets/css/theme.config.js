@@ -15,4 +15,24 @@
  * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import './js/Login';
+module.exports = {
+  theme: {
+    baseFontSize: '16px',
+    fontFamily: {
+      sans: ['"Public Sans"', 'sans-serif'],
+    },
+    extend: {
+      colors: {
+        primary: {
+          100: '#e4eaea',
+          600: '#4d7679',
+          700: '#19676d',
+          800: '#124a4e',
+          900: '#040f10',
+        },
+      }
+    }
+  },
+  variants: {},
+  plugins: [],
+};

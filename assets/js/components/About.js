@@ -24,8 +24,9 @@ import config from '../../../package.json';
 export default function About() {
   return (
     <div>
-      <h2>Adsisto v{ config.version }</h2>
-      <a href="https://github.com/adsisto/adsisto" className="btn btn-outline" target="_blank">
+      <h1 className="text-2xl font-bold my-2">Adsisto v{ config.version }</h1>
+      <a href="https://github.com/adsisto/adsisto" className="btn btn-outline" target="_blank"
+        rel="noopener noreferrer">
         <FontAwesomeIcon icon={ faGithub } size="lg"/>&nbsp;&nbsp;GitHub
       </a>
       <p>Copyright &copy; { config.author.name } 2019.</p>
@@ -36,7 +37,7 @@ export default function About() {
           target="_blank">GNU General Public License</a> as published by the
         Free Software Foundation. In addition, this program is also subject
         to certain additional terms available <a
-          href="https://github.com/adsisto/adsisto/blob/master/SUPPLEMENT.md" target="_blank">here</a>.
+          href="https://github.com/adsisto/adsisto/blob/master/SUPPLEMENT.md" target="_blank" rel="noopener noreferrer">here</a>.
       </p>
       <p>
         This program is distributed in the hope that it will be useful,

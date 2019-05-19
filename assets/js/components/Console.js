@@ -84,13 +84,13 @@ class Console extends React.Component {
                    ref={ Websocket => {
                      this.refWebSocket = Websocket;
                    } }/>
-        <p>
-          <strong>Status:</strong> Connecting...
+        <p className="my-4 text-gray-700">
+          <strong className="text-primary-800">Status:</strong> Connecting...
         </p>
         <div className="console__container">
           <video className="console"/>
           { this.state.connected ? '' : <div className="console__overlay">
-            <h2>Connecting to Remote Machine</h2>
+            <h1 className="font-bold mt-8 mb-4 text-2xl">Connecting to Remote Machine</h1>
             <h2 className="console__loading_container">
               <span className="console__loading">●</span>
               <span className="console__loading">●</span>

@@ -14,231 +14,101 @@
  / You should have received a copy of the GNU General Public License along with
  / this program.  If not, see <https://www.gnu.org/licenses/>.
  /
-@import "~html5-boilerplate/dist/css/normalize"
-@import "~html5-boilerplate/dist/css/main"
-@import "variables"
-@import "~react-table/react-table"
 
-@font-face
-    font-family: "Public Sans"
-    font-style: normal
-    font-weight: 100
-    src: url("../fonts/PublicSans-Thin.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: italic
-    font-weight: 100
-    src: url("../fonts/PublicSans-ThinItalic.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: normal
-    font-weight: 200
-    src: url("../fonts/PublicSans-Light.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: italic
-    font-weight: 200
-    src: url("../fonts/PublicSans-LightItalic.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: normal
-    font-weight: 400
-    src: url("../fonts/PublicSans-Regular.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: italic
-    font-weight: 400
-    src: url("../fonts/PublicSans-Italic.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: normal
-    font-weight: 600
-    src: url("../fonts/PublicSans-SemiBold.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: italic
-    font-weight: 600
-    src: url("../fonts/PublicSans-SemiBoldItalic.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: normal
-    font-weight: 700
-    src: url("../fonts/PublicSans-Bold.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: italic
-    font-weight: 700
-    src: url("../fonts/PublicSans-BoldItalic.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: normal
-    font-weight: 800
-    src: url("../fonts/PublicSans-ExtraBold.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: italic
-    font-weight: 800
-    src: url("../fonts/PublicSans-ExtraBoldItalic.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: normal
-    font-weight: 900
-    src: url("../fonts/PublicSans-Black.ttf") format("truetype")
-
-@font-face
-    font-family: "Public Sans"
-    font-style: italic
-    font-weight: 900
-    src: url("../fonts/PublicSans-BlackItalic.ttf") format("truetype")
+@import "~tailwindcss/base"
+@import "./fonts"
+@import "./variables"
 
 html
-    color: $primary
-    font-family: "Public Sans", sans-serif
-    font-size: $base-font-size
+    @apply text-primary-800 font-sans
+
+    font-size: theme("baseFontSize")
 
 body
-    background-color: $light-gray
-    margin: 0
-
-.text-description
-    color: adjust-color($primary, $lightness: 25%, $saturation: -70%)
-    font-size: .9rem
-
-.mt-1
-    margin-top: .25rem
-
-.mt-2
-    margin-top: .5rem
-
-.mb-1
-    margin-bottom: .25rem
-
-.mb-2
-    margin-bottom: .5rem
-
-.mr-1
-    margin-right: .25rem
-
-.mr-2
-    margin-right: .5rem
+    @apply bg-white
 
 a
-    color: adjust-color($primary, $lightness: 20%, $saturation: -40%)
-    text-decoration: none
+    @apply text-primary-600
 
     &:hover
+        @apply underline
+
         color: darken($primary, 15%)
-        text-decoration: underline
+
+input:not([type="submit"]),
+textarea
+    @apply bg-white block border border-gray-400 border-solid px-3 py-1 rounded text-primary-800 w-4/5
+
+    background-clip: padding-box
+
+@import "~tailwindcss/components"
 
 .btn
-    border: 1px solid transparent
-    border-radius: $base-border-radius
-    color: $primary
-    display: inline-block
-    line-height: 1.4
-    padding: .45rem .65rem
-    text-align: center
-    text-decoration: none !important
+    @apply align-middle border border-solid border-transparent inline-block leading-snug px-3 py-2 rounded select-none text-center
+    @apply no-underline #{!important}
+
     transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out
-    user-select: none
-    vertical-align: middle
 
     &-primary
-        background-color: lighten($primary, 7.5%)
-        border-color: $primary
-        color: $light-gray
+        @apply bg-primary-700 border-primary-800 text-gray-100
 
         &:hover
-            background-color: $primary
+            @apply bg-primary-800 text-gray-100
 
     &-outline
-        background-color: $light-gray
+        background-color: theme("colors.gray.100")
         border-color: adjust-color($primary, $saturation: -50%, $lightness: 30%)
         color: adjust-color($primary, $saturation: -40%, $lightness: 10%)
 
         &:hover
             background-color: mix(darken($light-gray, 1%), $primary, 95%)
 
-input:not([type="submit"]),
-textarea
-    background-clip: padding-box
-    background-color: $light-gray
-    border: 1px solid $dark-gray
-    border-radius: .25rem
-    box-sizing: border-box
-    color: $primary
-    display: block
-    font-size: 1rem
-    line-height: 1.5
-    padding: .35rem .75rem
-    width: 80%
-
 label
-    margin-right: .5rem
-
-.input-group
-    display: flex
-
-    span
-        background-clip: padding-box
-        background-color: $light-gray
-        border: 1px solid $dark-gray
-        border-radius: $base-border-radius 0 0 $base-border-radius
-        border-right: 0
-        color: $primary
-        padding: .35rem .35rem .35rem .75rem
-        text-align: center
-        white-space: nowrap
-
-        svg
-            height: 100%
-
-    input
-        border-left: 0
-        border-radius: 0 $base-border-radius $base-border-radius 0
-        margin-bottom: 0
-        padding: .35rem .75rem .35rem .35rem
-
-.alert
-    border: 1px solid transparent
-    border-radius: $base-border-radius
-    font-size: .9rem
-    margin-bottom: 2rem
-    padding: 0 1rem
-
-    &-warning
-        background-color: #fff3cd
-        border-color: #ffeeba
-        color: #856404
-
-    &-danger
-        background-color: #f8d7da
-        border-color: #f5c6cb
-        color: #721c24
+    @apply mr-2
 
 .text
     /* stylelint-disable-next-line rule-empty-line-before */
     &-warning
-        color: #856404
+        @apply text-yellow-800
 
     &-danger
-        color: #721c24
+        @apply text-red-800
+
+    &-description
+        color: adjust-color($primary, $lightness: 25%, $saturation: -70%)
+        font-size: .9rem
+
+.input-group
+    @apply flex
+
+    span
+        @apply bg-white border border-r-0 border-solid border-gray-400 bg-white p-2 pl-3 pr-1 rounded-l text-center text-primary-800
+
+        background-clip: padding-box
+        white-space: nowrap
+
+        svg
+            @apply h-full
+
+    input
+        @apply border-l-0 mb-0 p-2 pl-1 pr-3 rounded-l-none rounded-r
+
+.alert
+    @apply border border-solid border-transparent mt-4 mb-6 px-3 py-2 rounded text-sm
+
+    &-warning
+        @apply bg-orange-100 border-orange-300 text-yellow-800
+
+    &-danger
+        @apply bg-red-200 border-red-300 text-red-800
+
+@import "~tailwindcss/utilities"
+@import "~react-table/react-table"
 
 .help
+    @apply block
+
     color: adjust-color($primary, $saturation: -50%, $lightness: 35%)
-    display: block
     font-size: 90%
 
     &:hover
@@ -246,122 +116,67 @@ label
         text-decoration: underline
 
 .container
-    display: flex
-    min-height: 100%
-    width: 100%
+    @apply flex min-h-full max-w-full
 
 .header
-    align-items: center
-    border-bottom: 1px solid adjust-color($primary, $lightness: 60%, $saturation: -50%)
-    box-sizing: border-box
-    display: flex
+    @apply border border-solid flex items-center px-4 w-full
+
+    border-color: adjust-color($primary, $lightness: 60%, $saturation: -50%)
     height: 100px
-    padding: 0 1rem
-    width: 100%
     z-index: 999
 
-    &__logo
+    &-logo
         max-width: 200px
 
-    &__status
-        font-size: .95rem
-        margin: 0 15px
-
-    &__actions
-        display: flex
-        list-style-type: none
-        margin: 0 0 0 auto
-        user-select: none
-
 .sidebar
+    @apply flex flex-col flex-shrink justify-between px-4
+
     border-right: 1px solid adjust-color($primary, $lightness: 60%, $saturation: -50%)
-    display: flex
-    flex-direction: column
-    flex-shrink: 1
     height: calc(100vh - 100px)
-    justify-content: space-between
-    padding: 0 1rem
     z-index: 100
 
-    &__menu
-        list-style: none
+    &-menu
+        @apply my-2 p-0 select-none
+
         max-width: 250px
-        padding: 0
-        user-select: none
         width: 20vw
 
         li
-            padding: .3rem .5rem
+            @apply px-2 py-1
 
     a
-        color: $primary
-        text-decoration: none
+        @apply text-primary-800
 
         &:hover
-            color: darken($primary, 15%)
-            text-decoration: none
-
-.info
-    padding: 1rem .5rem
-
-.fullwidth-content
-    background-color: mix(darken($light-gray, 1%), $primary, 90%)
-    display: flex
-    flex-grow: 1
-    flex-wrap: wrap
-    justify-content: center
-    min-height: 100vh
-    padding: 0 1rem
-    z-index: 99
+            @apply no-underline text-primary-900
 
 .content
-    background-color: mix($light-gray, $primary, 96%)
-    flex-grow: 1
+    @apply bg-gray-100 flex-grow py-2 pl-8 pr-4 z-50
+
     height: calc(100vh - 100px)
-    padding: 0 1rem 0 2rem
-    z-index: 99
 
 .horizontal-form
     max-width: 1000px
 
     .form-row
-        display: flex
-        justify-content: space-between
-        margin-bottom: .5rem
+        @apply flex justify-between mb-2
 
     input:not([type="submit"]),
     textarea
-        max-width: 70%
-
+        max-width: 80%
 
 .login
     /* stylelint-disable-next-line rule-empty-line-before */
-    &__container
-        background-color: $light-gray
-        border: 1px solid adjust-color($primary, $lightness: 50%, $saturation: -50%)
-        border-radius: .5rem
+    &-container
+        @apply bg-white border border-solid my-4 px-5 py-2 rounded-lg
+
+        border-color: adjust-color($primary, $lightness: 50%, $saturation: -50%)
         box-shadow: 0 0 .5rem adjust-color($primary, $lightness: 50%, $saturation: -50%)
-        margin: 1rem 0
         max-width: 90vw
-        padding: .5rem 1.35rem
         width: 500px
 
-    &__form
-        /* stylelint-disable-next-line rule-empty-line-before */
-        .btn
-            font-size: 1.25rem
-            margin-top: 1rem
-            padding: .5rem 1rem
-
-    &__footer
-        display: flex
-        justify-content: center
-        margin-bottom: 0
-        margin-top: auto
-        width: 100%
-
-    &__logo
-        max-width: 220px
+    &-logo
+        max-width: 200px
         padding-bottom: 10px
         width: 50vw
 
@@ -372,7 +187,8 @@ label
         color: transparent
 
 .console
-    background-color: desaturate($primary, 75%)
+    @apply bg-gray-900
+
     max-height: calc(100vh - 100px - 5rem)
     object-fit: contain
     position: relative
@@ -410,27 +226,18 @@ label
             animation-delay: 1s
 
 .images
+    @apply flex-grow w-full
+
     background-color: mix($light-gray, $primary, 98%)
     border: 2px dashed mix($light-gray, $primary, 70%)
-    border-radius: $base-border-radius * 2
-    margin: 1rem 0
     max-width: 750px
-
-    &__container
-        display: flex
 
     &__list
         background-color: mix($light-gray, $primary, 98%)
-        border: 1px solid mix($light-gray, $primary, 20%)
-        border-radius: $base-border-radius * 2
-        flex-grow: 1
-        margin: 1rem 1rem 1rem 0
-        padding: 1.25rem 1rem
+        border-color: mix($light-gray, $primary, 20%)
 
     &__item
-        margin-top: .75rem
-        padding: .5rem
-
+        /* stylelint-disable-next-line rule-empty-line-before */
         &:hover
             background-color: mix(darken($light-gray, 3%), $primary, 92.5%)
 
@@ -439,33 +246,16 @@ label
             border: 2px solid mix($light-gray, $primary, 25%)
 
     &__drop_container
+        @apply flex flex-col items-start
+
         flex-grow: 5
 
     &__drop
+        @apply font-bold p-4 select-none text-center
+
         height: calc(100% - 4px)
         margin: 2px
-        padding: .25rem 1rem
-        text-align: center
-        user-select: none
 
     &__active
         background-color: mix(darken($light-gray, 2%), $primary, 92.5%)
         border-color: mix(darken($light-gray, 10%), $primary, 70%)
-
-    &__files
-        padding: .5rem 0
-        text-align: left
-        width: 100%
-
-
-    &__file
-        display: flex
-        margin-bottom: .25rem
-        width: 100%
-
-        span
-            width: 25%
-
-        progress
-            margin-right: 1rem
-            width: 50%

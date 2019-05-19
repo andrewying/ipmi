@@ -80,7 +80,7 @@ export default function CreateAccount(props) {
 
   return (
     <div>
-      <h2>{ newAccount ? 'Create Account' : `Account for ${ email }` }</h2>
+      <h1 className="font-bold my-4 text-2xl">{ newAccount ? 'Create Account' : `Account for ${ email }` }</h1>
       { error !== '' ? <div className="alert alert-danger">
         <p><strong>{ error }</strong></p>
       </div> : '' }
@@ -88,25 +88,25 @@ export default function CreateAccount(props) {
         <div className="form-row">
           <label>Email</label>
           <input type="email" id="email" name="email" value={ email }
-                 onChange={ (e) => setEmail(e.target.value) }/>
+            onChange={ (e) => setEmail(e.target.value) }/>
         </div>
         <div className="form-row">
           <label>Public Key</label>
           <textarea id="publicKey" name={ publicKey } value={ publicKey }
-                    onChange={ (e) => setPublicKey(e.target.value) }/>
+            onChange={ (e) => setPublicKey(e.target.value) }/>
         </div>
         <div className="form-row">
           <label>Access Level</label>
           <input type="number" min="0" step="1" id="accessLevel"
-                 name="accessLevel" value={ accessLevel }
-                 onChange={ (e) => setAccessLevel(e.target.value) }/>
+            name="accessLevel" value={ accessLevel }
+            onChange={ (e) => setAccessLevel(e.target.value) }/>
         </div>
         <div className="form-row">
           <span></span>
           <div>
             <Link to="/accounts" className="btn btn-outline mt-1 mr-2 mb-1">Back</Link>
             <input type="submit" className="btn btn-primary mt-1 mb-1"
-                   value="Create" onClick={ createAccount }/>
+              value="Create" onClick={ createAccount }/>
           </div>
         </div>
       </form>

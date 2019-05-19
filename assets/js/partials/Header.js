@@ -27,14 +27,14 @@ class Header extends React.Component {
   render() {
     return (
       <header className="header">
-        <img className="header__logo" src={ Logo } alt="Adsisto"/>
-        <div className="header__status">
+        <img className="header-logo" src={ Logo } alt="Adsisto"/>
+        <div className="mx-4 text-sm">
           <strong>Hostname:</strong><br/>
           <strong>ISO file:</strong>&nbsp;
           { this.props.iso !== undefined ? this.props.iso : 'Not attached' }<br/>
           <strong><Clock format={ 'HH:mm:ss D MMM YYYY' } ticking={ true }/></strong>
         </div>
-        <ul className="header__actions">
+        <ul className="flex select-none ml-auto">
           <li><a href="auth/logout" className="btn" role="button">Logout</a></li>
         </ul>
       </header>
