@@ -10,9 +10,11 @@ require (
 	github.com/aymerick/raymond v2.0.2+incompatible // indirect
 	github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
+	github.com/fatih/color v1.7.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/flosch/pongo2 v0.0.0-20190505152737-8914e1cf9164 // indirect
 	github.com/gavv/monotime v0.0.0-20190418164738-30dba4353424 // indirect
+	github.com/git-chglog/git-chglog v0.0.0-20190223132836-86d67ce2f0b2 // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
@@ -23,6 +25,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.0
 	github.com/hashicorp/logutils v1.0.0
+	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/blackfriday v2.0.0+incompatible // indirect
 	github.com/iris-contrib/formBinder v0.0.0-20190104093907-fbd5963f41e1 // indirect
@@ -56,6 +59,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.2
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
+	github.com/tsuyoshiwada/go-gitcmd v0.0.0-20180205145712-5f1f5f9475df // indirect
+	github.com/urfave/cli v1.20.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.1.0 // indirect
@@ -67,8 +72,10 @@ require (
 	golang.org/x/net v0.0.0-20190420063019-afa5a82059c6 // indirect
 	golang.org/x/sys v0.0.0-20190422165155-953cdadca894 // indirect
 	google.golang.org/appengine v1.5.0 // indirect
+	gopkg.in/AlecAivazis/survey.v1 v1.8.4 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.28.0
+	gopkg.in/kyokomi/emoji.v1 v1.5.1 // indirect
 	periph.io/x/periph v3.4.0+incompatible
 )
