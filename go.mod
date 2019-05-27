@@ -75,7 +75,7 @@ require (
 	gopkg.in/AlecAivazis/survey.v1 v1.8.4 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.28.0
+	gopkg.in/go-playground/validator.v9 v9.29.0
 	gopkg.in/kyokomi/emoji.v1 v1.5.1 // indirect
 	periph.io/x/periph v3.4.0+incompatible
 )
