@@ -50,7 +50,7 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.3.0 // indirect
 	github.com/pion/ice v0.2.2 // indirect
-	github.com/pion/webrtc/v2 v2.0.16
+	github.com/pion/webrtc/v2 v2.0.17
 	github.com/ryanuber/columnize v2.1.0+incompatible // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
