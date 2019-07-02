@@ -41,7 +41,7 @@
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-security": "^1.4.0",
     "exports-loader": "^0.7.0",
-    "extract-css-chunks-webpack-plugin": "^4.5.2",
+    "extract-css-chunks-webpack-plugin": "^4.5.4",
     "file-loader": "^4.0.0",
     "html-loader": "^0.5.5",
     "keypress": "^0.2.1",
