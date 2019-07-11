@@ -64,7 +64,7 @@
     "react-router-dom": "^5.0.1",
     "react-table": "^6.10.0",
     "react-websocket": "^2.0.1",
-    "redux": "^4.0.1",
+    "redux": "^4.0.4",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "stylelint": "^10.1.0",
