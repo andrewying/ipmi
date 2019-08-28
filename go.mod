@@ -77,5 +77,5 @@ require (
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.1
 	gopkg.in/kyokomi/emoji.v1 v1.5.1 // indirect
-	periph.io/x/periph v3.4.0+incompatible
+	periph.io/x/periph v3.6.2+incompatible
 )
