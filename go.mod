@@ -23,7 +23,7 @@ require (
 	github.com/golang/protobuf v1.3.1 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/uuid v1.1.1
-	github.com/gorilla/websocket v1.4.0
+	github.com/gorilla/websocket v1.4.1
 	github.com/hashicorp/logutils v1.0.0
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
