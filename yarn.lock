@@ -4772,10 +4772,10 @@ nodegit-promise@~4.0.0:
   dependencies:
     asap "~2.0.3"
 
-nodegit@^0.25.1:
-  version "0.25.1"
-  resolved "https://registry.yarnpkg.com/nodegit/-/nodegit-0.25.1.tgz#70b9d89e62cbc1153237a10a196e3228a669895b"
-  integrity sha512-j2kEd4jTraimRPKDX31DsLcfY9fWpcYG8zT0tiLVtN5jMm9fDFgn3WOQ+Nk+3NcBqxr4p5N5pZqNrCS0nGdTbg==
+nodegit@^0.26.2:
+  version "0.26.2"
+  resolved "https://registry.yarnpkg.com/nodegit/-/nodegit-0.26.2.tgz#15e9eb4308afdffd975051144fc5098c8db4be63"
+  integrity sha512-wf3Su4+kyAeN1fMMg/rl66sb+J2W+RFDYbfzLy4/ZGCS1V/DRd1YMWcXiu6JpYm6x9/6MobVAO+9aHQdC5i8Pw==
   dependencies:
     fs-extra "^7.0.0"
     json5 "^2.1.0"
@@ -6578,14 +6578,6 @@ sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
-
-scheduler@^0.13.6:
-  version "0.13.6"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.13.6.tgz#466a4ec332467b31a91b9bf74e5347072e4cd889"
-  integrity sha512-IWnObHt413ucAYKsD9J1QShUKkbKLQQHdxRyw73sw4FN26iWr3DY/H34xGPe4nmL1DwXyWmSWmMrA9TfQbE/XQ==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
 
 scheduler@^0.17.0:
   version "0.17.0"
