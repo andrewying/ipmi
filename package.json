@@ -49,7 +49,7 @@
     "node-emoji": "^1.10.0",
     "node-sass": "^4.0.0",
     "nodegit": "^0.26.2",
-    "open": "^6.4.0",
+    "open": "^7.0.3",
     "postcss-functions": "^3.0.0",
     "postcss-import": "^12.0.1",
     "postcss-loader": "^3.0.0",
